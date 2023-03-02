@@ -8,7 +8,7 @@ CHANNEL_NAME="$1"
 DELAY="$2"
 MAX_RETRY="$3"
 VERBOSE="$4"
-: ${CHANNEL_NAME:="mychannel"}
+: ${CHANNEL_NAME:="supplychain"}
 : ${DELAY:="3"}
 : ${MAX_RETRY:="5"}
 : ${VERBOSE:="false"}
@@ -34,7 +34,7 @@ createChannelGenesisBlock() {
 }
 
 createChannel() {
-	setGlobals 1
+	setGlobals "supplier"
 	# Poll in case the raft leader is not set yet
 	local rc=1
 	local COUNTER=1
@@ -92,15 +92,15 @@ createChannel
 successln "Channel '$CHANNEL_NAME' created"
 
 ## Join all the peers to the channel
-infoln "Joining org1 peer to the channel..."
-joinChannel 1
-infoln "Joining org2 peer to the channel..."
-joinChannel 2
+infoln "Joining supplier peer to the channel..."
+joinChannel "supplier"
+infoln "Joining farmer peer to the channel..."
+joinChannel "farmer"
 
 ## Set the anchor peers for each org in the channel
-infoln "Setting anchor peer for org1..."
-setAnchorPeer 1
-infoln "Setting anchor peer for org2..."
-setAnchorPeer 2
+infoln "Setting anchor peer for supplier..."
+setAnchorPeer "supplier"
+infoln "Setting anchor peer for farmer..."
+setAnchorPeer "farmer"
 
 successln "Channel '$CHANNEL_NAME' joined"

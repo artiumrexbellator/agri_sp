@@ -27,22 +27,22 @@ setGlobals() {
     USING_ORG="${OVERRIDE_ORG}"
   fi
   infoln "Using organization ${USING_ORG}"
-  if [ $USING_ORG -eq "supplier" ]; then
+  if [ $USING_ORG == "supplier" ]; then
     export CORE_PEER_LOCALMSPID="SupplierMSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_SUPPLIER_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/supplier.example.com/users/Admin@supplier.example.com/msp
     export CORE_PEER_ADDRESS=localhost:7051
-  elif [ $USING_ORG -eq "farmer" ]; then
+  elif [ $USING_ORG == "farmer" ]; then
     export CORE_PEER_LOCALMSPID="FarmerMSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_FARMER_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/farmer.example.com/users/Admin@farmer.example.com/msp
     export CORE_PEER_ADDRESS=localhost:9051
 
-  elif [ $USING_ORG -eq 3 ]; then
-    export CORE_PEER_LOCALMSPID="Org3MSP"
-    export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG3_CA
-    export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org3.example.com/users/Admin@org3.example.com/msp
-    export CORE_PEER_ADDRESS=localhost:11051
+  #elif [ $USING_ORG == 3 ]; then
+    #export CORE_PEER_LOCALMSPID="Org3MSP"
+    #export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG3_CA
+    #export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org3.example.com/#users/Admin@org3.example.com/msp
+    #export CORE_PEER_ADDRESS=localhost:11051
   else
     errorln "ORG Unknown"
   fi
@@ -62,11 +62,11 @@ setGlobalsCLI() {
   else
     USING_ORG="${OVERRIDE_ORG}"
   fi
-  if [ $USING_ORG -eq 1 ]; then
+  if [ $USING_ORG == "supplier" ]; then
     export CORE_PEER_ADDRESS=peer0.supplier.example.com:7051
-  elif [ $USING_ORG -eq 2 ]; then
+  elif [ $USING_ORG == "farmer" ]; then
     export CORE_PEER_ADDRESS=peer0.farmer.example.com:9051
-  elif [ $USING_ORG -eq 3 ]; then
+  elif [ $USING_ORG == "other" ]; then
     export CORE_PEER_ADDRESS=peer0.org3.example.com:11051
   else
     errorln "ORG Unknown"
@@ -81,7 +81,7 @@ parsePeerConnectionParameters() {
   PEERS=""
   while [ "$#" -gt 0 ]; do
     setGlobals $1
-    PEER="peer0.org$1"
+    PEER="peer0.$1"
     ## Set peer addresses
     if [ -z "$PEERS" ]
     then
@@ -91,7 +91,7 @@ parsePeerConnectionParameters() {
     fi
     PEER_CONN_PARMS=("${PEER_CONN_PARMS[@]}" --peerAddresses $CORE_PEER_ADDRESS)
     ## Set path to TLS certificate
-    CA=PEER0_ORG$1_CA
+    CA=PEER0_$(echo "$1" | tr '[:lower:]' '[:upper:]')_CA
     TLSINFO=(--tlsRootCertFiles "${!CA}")
     PEER_CONN_PARMS=("${PEER_CONN_PARMS[@]}" "${TLSINFO[@]}")
     # shift by one to get to the next organization
