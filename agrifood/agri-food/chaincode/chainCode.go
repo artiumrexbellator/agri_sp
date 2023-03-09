@@ -22,13 +22,18 @@ import (
 	ExpirationDate time.Time `json:"expiration_date"`
    }
 
-   func (s *SmartContract) CreateRawMaterial(ctx contractapi.TransactionContextInterface,id string, origin string, materialType string, supplyDate string, expirationDate string) error {
-	exists, err := s.AssetExists(ctx, id)
+   func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterface,id string, origin string, materialType string, supplyDate string, expirationDate string) error {
+	var today=time.Now().UTC().Format("YYYY-MM-DD")
+	assetKey, err := ctx.GetStub().CreateCompositeKey("farmer~date", []string{id,today})
+	if err != nil {
+        return fmt.Errorf("failed to create composite key: %v", err)
+    }
+	exists, err := s.CommodityExists(ctx, assetKey,today)
 	if err != nil {
 		return fmt.Errorf("failed to read from world state: %v", err)
 	}
 	if exists {
-		return fmt.Errorf("the raw material %s already exists", id)
+		return fmt.Errorf("the commodity %s already exists", assetKey)
 	}
     sp_date, err := time.Parse("2006-01-02", supplyDate)
 	if err != nil {
@@ -51,17 +56,55 @@ import (
 		return err
 	}
 
-	err = ctx.GetStub().PutState(id, rawMaterialJSON)
+	err = ctx.GetStub().PutState(assetKey, rawMaterialJSON)
 	if err != nil {
 		return err
 	}
-
 	return nil
 
 }
 
 // ReadAsset returns the asset stored in the world state with given id.
-func (s *SmartContract) ReadRMAsset(ctx contractapi.TransactionContextInterface, id string) (*RawMaterial, error) {
+func (s *SmartContract) GetFarmerCommodities(ctx contractapi.TransactionContextInterface, id string) ([]*RawMaterial, error) {
+
+    // Execute the GetStateByPartialCompositeKey query and retrieve the query result iterator
+    queryResultIterator, err := ctx.GetStub().GetStateByPartialCompositeKey("farmer~date", []string{id})
+    if err != nil {
+        return nil, fmt.Errorf("failed to execute query: %v", err)
+    }
+    defer queryResultIterator.Close()
+
+    // Loop through the query result iterator and build a slice of assets that match the partial composite key
+    var matchingAssets []*RawMaterial
+    for queryResultIterator.HasNext() {
+        queryResult, err := queryResultIterator.Next()
+        if err != nil {
+            return nil, fmt.Errorf("failed to retrieve query result: %v", err)
+        }
+
+        _, compositeKeyParts, err := ctx.GetStub().SplitCompositeKey(queryResult.Key)
+        if err != nil {
+            return nil, fmt.Errorf("failed to split composite key: %v", err)
+        }
+
+        var asset RawMaterial
+        err = json.Unmarshal(queryResult.Value, &asset)
+        if err != nil {
+            return nil, fmt.Errorf("failed to unmarshal asset: %v", err)
+        }
+
+        // Check that the retrieved asset has the correct color prefix
+        if compositeKeyParts[0] == id {
+            matchingAssets = append(matchingAssets, &asset)
+        }
+    }
+
+    // Return the matching assets as JSON
+    return matchingAssets,nil
+  }
+
+// ReadAsset returns the asset stored in the world state with given id.
+func (s *SmartContract) GetCommodityById(ctx contractapi.TransactionContextInterface, id string) (*RawMaterial, error) {
 	assetJSON, err := ctx.GetStub().GetState(id)
     if err != nil {
       return nil, fmt.Errorf("failed to read from world state: %v", err)
@@ -80,8 +123,13 @@ func (s *SmartContract) ReadRMAsset(ctx contractapi.TransactionContextInterface,
   }
 
   // AssetExists returns true when asset with given ID exists in world state
-  func (s *SmartContract) AssetExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
-	assetJSON, err := ctx.GetStub().GetState(id)
+  func (s *SmartContract) CommodityExists(ctx contractapi.TransactionContextInterface, id string,date string) (bool, error) {
+	assetKey, err := ctx.GetStub().CreateCompositeKey("farmer~date", []string{id,date})
+	if err != nil {
+		return false, fmt.Errorf("failed to create key: %v", err)
+	  }
+  
+	assetJSON, err := ctx.GetStub().GetState(assetKey)
 	if err != nil {
 	  return false, fmt.Errorf("failed to read from world state: %v", err)
 	}
@@ -89,33 +137,6 @@ func (s *SmartContract) ReadRMAsset(ctx contractapi.TransactionContextInterface,
 	return assetJSON != nil, nil
   }
 
-// GetAllAssets returns all assets found in world state
-func (s *SmartContract) GetAllRMAssets(ctx contractapi.TransactionContextInterface) ([]*RawMaterial, error) {
-	// range query with empty string for startKey and endKey does an
-	// open-ended query of all assets in the chaincode namespace.
-	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
-	if err != nil {
-		return nil, err
-	}
-	defer resultsIterator.Close()
-
-	var assets []*RawMaterial
-	for resultsIterator.HasNext() {
-		queryResponse, err := resultsIterator.Next()
-		if err != nil {
-			return nil, err
-		}
-
-		var asset RawMaterial
-		err = json.Unmarshal(queryResponse.Value, &asset)
-		if err != nil {
-			return nil, err
-		}
-		assets = append(assets, &asset)
-	}
-
-	return assets, nil
-}
 
 func main() {
     assetChaincode, err := contractapi.NewChaincode(&SmartContract{})
