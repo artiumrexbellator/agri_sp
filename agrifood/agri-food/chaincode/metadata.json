@@ -1,0 +1,19 @@
+{
+    "policy": {
+        "identities": [
+            {
+                "role": {
+                    "name": "admin",
+                    "mspId": "SupplierMSP"
+                }
+            }
+        ],
+        "policy": {
+            "1-of": [
+                {
+                    "signed-by": 0
+                }
+            ]
+        }
+    }
+}

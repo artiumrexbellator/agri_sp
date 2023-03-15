@@ -1,0 +1,53 @@
+{
+  "name": "test-network",
+  "version": "1.0.0",
+  "client": {
+    "tlsEnable": true,
+    "caCredential": {
+      "id": "admin",
+      "password": "adminpw"
+    },
+    "adminCredential": {
+      "id": "exploreradmin",
+      "password": "exploreradminpw",
+      "affiliation": "supplier.department1"
+    },
+    "enableAuthentication": true,
+    "organization": "SupplierMSP",
+    "connection": {
+      "timeout": {
+        "peer": {
+          "endorser": "300"
+        },
+        "orderer": "300"
+      }
+    }
+  },
+  "channels": {
+    "supplychain": {
+      "peers": {
+        "peer0.supplier.example.com": {}
+      }
+    }
+  },
+  "organizations": {
+    "SupplierMSP": {
+      "mspid": "SupplierMSP",
+      "adminPrivateKey": {
+        "path": "/tmp/crypto/peerOrganizations/supplier.example.com/users/Admin@supplier.example.com/msp/keystore/priv_sk"
+      },
+      "peers": ["peer0.supplier.example.com"],
+      "signedCert": {
+        "path": "/tmp/crypto/peerOrganizations/supplier.example.com/users/Admin@supplier.example.com/msp/signcerts/Admin@supplier.example.com-cert.pem"
+      }
+    }
+  },
+  "peers": {
+    "peer0.supplier.example.com": {
+      "tlsCACerts": {
+        "path": "/tmp/crypto/peerOrganizations/supplier.example.com/peers/peer0.supplier.example.com/tls/ca.crt"
+      },
+      "url": "grpcs://peer0.supplier.example.com:7051"
+    }
+  }
+}

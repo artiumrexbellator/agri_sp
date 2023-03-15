@@ -2,6 +2,8 @@ fabric-samples/
 .vscode/
 agrifood/agri-food/chaincode/vendor
 agrifood/agri-food/commands_for_further_concat.txt
+agrifood/agri-food/explorer/organizations/
 agrifood/*
 !agrifood/agri-food
 notes
+.gitignore
