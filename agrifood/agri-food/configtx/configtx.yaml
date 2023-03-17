@@ -90,7 +90,7 @@ Organizations:
                 Rule: "OR('FarmerMSP.admin', 'FarmerMSP.peer', 'FarmerMSP.client')"
             Writers:
                 Type: Signature
-                Rule: "OR('FarmerMSP.admin', 'FarmerMSP.client')"
+                Rule: "OR('FarmerMSP.admin', 'FarmerMSP.client','FarmerMSP.client')"
             Admins:
                 Type: Signature
                 Rule: "OR('FarmerMSP.admin')"

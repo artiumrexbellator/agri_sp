@@ -173,6 +173,9 @@ function createOrgs() {
 
     set -x
     cryptogen generate --config=./ordrer/crypto-config.yaml --output="organizations"
+    rm -r explorer/organizations/
+    mkdir explorer/organizations/
+    cp -r organizations/peerOrganizations explorer/organizations/peerOrganizations && cp -r organizations/ordererOrganizations explorer/organizations 
     res=$?
     { set +x; } 2>/dev/null
     if [ $res -ne 0 ]; then

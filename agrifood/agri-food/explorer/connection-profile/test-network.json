@@ -3,14 +3,9 @@
   "version": "1.0.0",
   "client": {
     "tlsEnable": true,
-    "caCredential": {
-      "id": "admin",
-      "password": "adminpw"
-    },
     "adminCredential": {
       "id": "exploreradmin",
-      "password": "exploreradminpw",
-      "affiliation": "supplier.department1"
+      "password": "exploreradminpw"
     },
     "enableAuthentication": true,
     "organization": "SupplierMSP",

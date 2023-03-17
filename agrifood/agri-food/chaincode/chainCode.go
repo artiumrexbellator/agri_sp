@@ -6,6 +6,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/hyperledger/fabric-chaincode-go/pkg/cid"
+	"github.com/hyperledger/fabric-chaincode-go/pkg/statebased"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
@@ -24,9 +26,21 @@ type Commodity struct {
 }
 
 func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterface, id string, origin string, materialType string, supplyDate string, expirationDate string) error {
-	ctx.GetStub().SetTransient()
-	var today = time.Now().UTC().Format("YYYY-MM-DD")
+	// Check invoking user identity
+	creatorOrg, err := cid.GetMSPID(ctx.GetStub())
+	if err != nil {
+		return fmt.Errorf("failed to get MSP ID: %v", err)
+	}
+	if creatorOrg != "FarmerMSP" {
+		return fmt.Errorf("only members of FarmerMSP can create commodities")
+	}
+
+	var today = time.Now().UTC().Format("2006-01-02")
 	assetKey, err := ctx.GetStub().CreateCompositeKey("commodity", []string{id, today})
+	if err != nil {
+		return fmt.Errorf("failed creating the key: %v", err)
+	}
+
 	if err != nil {
 		return fmt.Errorf("failed to create composite key: %v", err)
 	}
@@ -39,11 +53,11 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 	}
 	sp_date, err := time.Parse("2006-01-02", supplyDate)
 	if err != nil {
-		return fmt.Errorf("failed to read from world state: %v", err)
+		return fmt.Errorf("wrong supply date: %v", err)
 	}
 	exp_date, err := time.Parse("2006-01-02", expirationDate)
 	if err != nil {
-		return fmt.Errorf("failed to read from world state: %v", err)
+		return fmt.Errorf("wrong expiration date: %v", err)
 	}
 	commodity := &Commodity{
 		ID:             id,
@@ -61,6 +75,12 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 	err = ctx.GetStub().PutState(assetKey, commodityJSON)
 	if err != nil {
 		return err
+	}
+	// Changes the endorsement policy to the new owner org
+	endorsingOrgs := []string{creatorOrg}
+	err = setAssetStateBasedEndorsement(ctx, assetKey, endorsingOrgs)
+	if err != nil {
+		return fmt.Errorf("failed setting state based endorsement for new owner: %v", err)
 	}
 	return nil
 
@@ -132,6 +152,28 @@ func (s *SmartContract) CommodityExists(ctx contractapi.TransactionContextInterf
 	}
 
 	return assetJSON != nil, nil
+}
+
+// setAssetStateBasedEndorsement adds an endorsement policy to an asset so that the passed orgs need to agree upon transfer
+func setAssetStateBasedEndorsement(ctx contractapi.TransactionContextInterface, assetID string, orgsToEndorse []string) error {
+	endorsementPolicy, err := statebased.NewStateEP(nil)
+	if err != nil {
+		return err
+	}
+	err = endorsementPolicy.AddOrgs(statebased.RoleTypePeer, orgsToEndorse...)
+	if err != nil {
+		return fmt.Errorf("failed to add org to endorsement policy: %v", err)
+	}
+	policy, err := endorsementPolicy.Policy()
+	if err != nil {
+		return fmt.Errorf("failed to create endorsement policy bytes from org: %v", err)
+	}
+	err = ctx.GetStub().SetStateValidationParameter(assetID, policy)
+	if err != nil {
+		return fmt.Errorf("failed to set validation parameter on asset: %v", err)
+	}
+
+	return nil
 }
 
 func main() {

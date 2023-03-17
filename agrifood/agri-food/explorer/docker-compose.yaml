@@ -18,7 +18,7 @@ services:
     hostname: explorerdb.mynetwork.com
     environment:
       - DATABASE_DATABASE=fabricexplorer
-      - DATABASE_USERNAME=hphppocpoc
+      - DATABASE_USERNAME=hppoc
       - DATABASE_PASSWORD=password
     healthcheck:
       test: "pg_isready -h localhost -p 5432 -q -U postgres"
