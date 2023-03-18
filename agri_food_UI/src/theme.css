@@ -1,0 +1,61 @@
+html,
+body,
+#root {
+  height: 100%;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header {
+  height: 10%;
+  max-height: 100px; /* set maximum height to 100px */
+  display: flex;
+  align-items: center;
+}
+
+.content {
+  flex-grow: 1;
+  height: 85%;
+  overflow-y: auto; /* add scrollbars if content overflows */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-top: auto;
+  width: 100%;
+  align-self: center; /* add this property */
+}
+
+.menu-container {
+  width: 50%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  max-height: calc(85% - 20px); /* subtract the padding */
+  padding: 10px;
+  margin: 0 auto;
+  overflow-y: auto; /* add this to enable scrolling */
+}
+
+.menu-card {
+  width: 200px;
+  height: 200px;
+  margin: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-basis: calc(
+    33.33% - 20px
+  ); /* set the width to one-third minus the padding */
+}
