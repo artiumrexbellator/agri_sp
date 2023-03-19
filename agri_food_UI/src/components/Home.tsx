@@ -8,11 +8,11 @@ import { BrowserRouter as Router } from 'react-router-dom';
 
 import CreateCommodity from './CreateCommodity';
 const titleStyle: React.CSSProperties = {
-    color: 'white'
+    color: 'white',
+    marginTop: '10px'
 }
 
 const Home: React.FC = () => {
-
     const menuItems = [
         {
             title: 'Create commodity',
@@ -32,7 +32,7 @@ const Home: React.FC = () => {
     return (
         <Layout className="layout">
             <Header className="header">
-                <Title level={1} style={titleStyle}>Agrifood blockchain</Title>
+                <Title level={2} italic style={titleStyle}>Agrifood blockchain</Title>
                 <div className="logo" />
                 <Menu
                     mode="horizontal"
