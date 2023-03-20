@@ -29,17 +29,17 @@ function yaml_ccp {
 ORG=supplier
 P0PORT=7051
 CAPORT=7054
-PEERPEM=organizations/peerOrganizations/supplier.example.com/tlsca/tlsca.supplier.example.com-cert.pem
-CAPEM=organizations/peerOrganizations/supplier.example.com/ca/ca.supplier.example.com-cert.pem
+PEERPEM=organizations/peerOrganizations/supplier.com/tlsca/tlsca.supplier.com-cert.pem
+CAPEM=organizations/peerOrganizations/supplier.com/ca/ca.supplier.com-cert.pem
 
-echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/supplier.example.com/connection-supplier.json
-echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/supplier.example.com/connection-supplier.yaml
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/supplier.com/connection-supplier.json
+echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/supplier.com/connection-supplier.yaml
 
 ORG=farmer
 P0PORT=9051
 CAPORT=8054
-PEERPEM=organizations/peerOrganizations/farmer.example.com/tlsca/tlsca.farmer.example.com-cert.pem
-CAPEM=organizations/peerOrganizations/farmer.example.com/ca/ca.farmer.example.com-cert.pem
+PEERPEM=organizations/peerOrganizations/farmer.com/tlsca/tlsca.farmer.com-cert.pem
+CAPEM=organizations/peerOrganizations/farmer.com/ca/ca.farmer.com-cert.pem
 
-echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/farmer.example.com/connection-farmer.json
-echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/farmer.example.com/connection-farmer.yaml
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/farmer.com/connection-farmer.json
+echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/farmer.com/connection-farmer.yaml

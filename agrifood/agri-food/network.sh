@@ -216,6 +216,10 @@ function createOrgs() {
 
   infoln "Generating CCP files for supplier and farmer"
   ./ccp-template/ccp-generate.sh
+    rm -r explorer/organizations/
+    mkdir explorer/organizations/
+    cp -r organizations/peerOrganizations explorer/organizations/peerOrganizations && cp -r organizations/ordererOrganizations explorer/organizations 
+
 }
 
 # Once you create the organization crypto material, you need to create the
@@ -339,7 +343,7 @@ function networkDown() {
   # Don't remove the generated artifacts -- note, the ledgers are always removed
   if [ "$MODE" != "restart" ]; then
     # Bring down the network, deleting the volumes
-    ${CONTAINER_CLI} volume rm orderer.example.com peer0.supplier.example.com peer0.farmer.example.com
+    ${CONTAINER_CLI} volume rm orderer.example.com peer0.supplier.com peer0.farmer.com
     #Cleanup the chaincode containers
     clearContainers
     #Cleanup images

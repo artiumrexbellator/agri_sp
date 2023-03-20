@@ -12,8 +12,8 @@
 
 export CORE_PEER_TLS_ENABLED=true
 export ORDERER_CA=${PWD}/organizations/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem
-export PEER0_SUPPLIER_CA=${PWD}/organizations/peerOrganizations/supplier.example.com/tlsca/tlsca.supplier.example.com-cert.pem
-export PEER0_FARMER_CA=${PWD}/organizations/peerOrganizations/farmer.example.com/tlsca/tlsca.farmer.example.com-cert.pem
+export PEER0_SUPPLIER_CA=${PWD}/organizations/peerOrganizations/supplier.com/tlsca/tlsca.supplier.com-cert.pem
+export PEER0_FARMER_CA=${PWD}/organizations/peerOrganizations/farmer.com/tlsca/tlsca.farmer.com-cert.pem
 export PEER0_ORG3_CA=${PWD}/organizations/peerOrganizations/org3.example.com/tlsca/tlsca.org3.example.com-cert.pem
 export ORDERER_ADMIN_TLS_SIGN_CERT=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
 export ORDERER_ADMIN_TLS_PRIVATE_KEY=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.key
@@ -30,12 +30,12 @@ setGlobals() {
   if [ $USING_ORG == "supplier" ]; then
     export CORE_PEER_LOCALMSPID="SupplierMSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_SUPPLIER_CA
-    export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/supplier.example.com/users/Admin@supplier.example.com/msp
+    export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/supplier.com/users/Admin@supplier.com/msp
     export CORE_PEER_ADDRESS=localhost:7051
   elif [ $USING_ORG == "farmer" ]; then
     export CORE_PEER_LOCALMSPID="FarmerMSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_FARMER_CA
-    export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/farmer.example.com/users/Admin@farmer.example.com/msp
+    export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/farmer.com/users/Admin@farmer.com/msp
     export CORE_PEER_ADDRESS=localhost:9051
 
   #elif [ $USING_ORG == 3 ]; then
@@ -63,9 +63,9 @@ setGlobalsCLI() {
     USING_ORG="${OVERRIDE_ORG}"
   fi
   if [ $USING_ORG == "supplier" ]; then
-    export CORE_PEER_ADDRESS=peer0.supplier.example.com:7051
+    export CORE_PEER_ADDRESS=peer0.supplier.com:7051
   elif [ $USING_ORG == "farmer" ]; then
-    export CORE_PEER_ADDRESS=peer0.farmer.example.com:9051
+    export CORE_PEER_ADDRESS=peer0.farmer.com:9051
   elif [ $USING_ORG == "other" ]; then
     export CORE_PEER_ADDRESS=peer0.org3.example.com:11051
   else

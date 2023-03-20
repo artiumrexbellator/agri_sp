@@ -21,7 +21,7 @@
   "channels": {
     "supplychain": {
       "peers": {
-        "peer0.supplier.example.com": {}
+        "peer0.supplier.com": {}
       }
     }
   },
@@ -29,20 +29,20 @@
     "SupplierMSP": {
       "mspid": "SupplierMSP",
       "adminPrivateKey": {
-        "path": "/tmp/crypto/peerOrganizations/supplier.example.com/users/Admin@supplier.example.com/msp/keystore/priv_sk"
+        "path": "/tmp/crypto/peerOrganizations/supplier.com/users/Admin@supplier.com/msp/keystore/priv_sk"
       },
-      "peers": ["peer0.supplier.example.com"],
+      "peers": ["peer0.supplier.com"],
       "signedCert": {
-        "path": "/tmp/crypto/peerOrganizations/supplier.example.com/users/Admin@supplier.example.com/msp/signcerts/Admin@supplier.example.com-cert.pem"
+        "path": "/tmp/crypto/peerOrganizations/supplier.com/users/Admin@supplier.com/msp/signcerts/Admin@supplier.com-cert.pem"
       }
     }
   },
   "peers": {
-    "peer0.supplier.example.com": {
+    "peer0.supplier.com": {
       "tlsCACerts": {
-        "path": "/tmp/crypto/peerOrganizations/supplier.example.com/peers/peer0.supplier.example.com/tls/ca.crt"
+        "path": "/tmp/crypto/peerOrganizations/supplier.com/peers/peer0.supplier.com/tls/ca.crt"
       },
-      "url": "grpcs://peer0.supplier.example.com:7051"
+      "url": "grpcs://peer0.supplier.com:7051"
     }
   }
 }

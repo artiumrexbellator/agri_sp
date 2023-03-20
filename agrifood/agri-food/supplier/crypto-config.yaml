@@ -1,6 +1,6 @@
 PeerOrgs:
   - Name: Supplier
-    Domain: supplier.example.com
+    Domain: supplier.com
     EnableNodeOUs: true
     Template:
       Count: 1

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"time"
 
 	"github.com/hyperledger/fabric-chaincode-go/pkg/cid"
 	"github.com/hyperledger/fabric-chaincode-go/pkg/statebased"
@@ -18,14 +17,12 @@ type SmartContract struct {
 
 // Asset describes basic details of what makes up a simple asset
 type Commodity struct {
-	ID             string    `json:"ID"`
-	Origin         string    `json:"origin"`
-	Type           string    `json:"type"`
-	SupplyDate     time.Time `json:"supply_date"`
-	ExpirationDate time.Time `json:"expiration_date"`
+	ID     string `json:"ID"`
+	Origin string `json:"origin"`
+	Type   string `json:"type"`
 }
 
-func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterface, id string, origin string, materialType string, supplyDate string, expirationDate string) error {
+func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterface, id string, origin string, materialType string) error {
 	// Check invoking user identity
 	creatorOrg, err := cid.GetMSPID(ctx.GetStub())
 	if err != nil {
@@ -35,8 +32,8 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 		return fmt.Errorf("only members of FarmerMSP can create commodities")
 	}
 
-	var today = time.Now().UTC().Format("2006-01-02")
-	assetKey, err := ctx.GetStub().CreateCompositeKey("commodity", []string{id, today})
+	//var today = time.Now().UTC().Format("2006-01-02")
+	assetKey, err := ctx.GetStub().CreateCompositeKey("commodity", []string{id})
 	if err != nil {
 		return fmt.Errorf("failed creating the key: %v", err)
 	}
@@ -51,20 +48,20 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 	if exists {
 		return fmt.Errorf("the commodity %s already exists", assetKey)
 	}
-	sp_date, err := time.Parse("2006-01-02", supplyDate)
+	/* sp_date, err := time.Parse("2006-01-02", supplyDate)
 	if err != nil {
 		return fmt.Errorf("wrong supply date: %v", err)
 	}
 	exp_date, err := time.Parse("2006-01-02", expirationDate)
 	if err != nil {
 		return fmt.Errorf("wrong expiration date: %v", err)
-	}
+	} */
 	commodity := &Commodity{
-		ID:             id,
-		Origin:         origin,
-		Type:           materialType,
-		SupplyDate:     sp_date,
-		ExpirationDate: exp_date,
+		ID:     id,
+		Origin: origin,
+		Type:   materialType,
+		/* SupplyDate:     sp_date,
+		ExpirationDate: exp_date, */
 	}
 
 	commodityJSON, err := json.Marshal(commodity)

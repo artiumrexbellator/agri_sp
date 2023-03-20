@@ -5,8 +5,8 @@
 
 version: '3.7'
 services:
-  peer0.supplier.example.com:
-    container_name: peer0.supplier.example.com
+  peer0.supplier.com:
+    container_name: peer0.supplier.com
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
@@ -18,8 +18,8 @@ services:
       - ./docker/peercfg:/etc/hyperledger/peercfg
       - ${DOCKER_SOCK}:/host/var/run/docker.sock
 
-  peer0.farmer.example.com:
-    container_name: peer0.farmer.example.com
+  peer0.farmer.com:
+    container_name: peer0.farmer.com
     image: hyperledger/fabric-peer:latest
     labels:
       service: hyperledger-fabric
@@ -30,7 +30,7 @@ services:
     volumes:
       - ./docker/peercfg:/etc/hyperledger/peercfg
       - ${DOCKER_SOCK}:/host/var/run/docker.sock
-  
+
   cli:
     container_name: cli
     image: hyperledger/fabric-tools:latest

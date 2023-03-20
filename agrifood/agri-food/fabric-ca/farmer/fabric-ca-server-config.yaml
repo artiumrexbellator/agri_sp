@@ -301,16 +301,16 @@ signing:
 #     CA certificates though it can still issue end entity certificates.
 ###########################################################################
 csr:
-   cn: ca.farmer.example.com
+   cn: ca.farmer.com
    names:
       - C: UK
         ST: "Hampshire"
         L: "Hursley"
-        O: farmer.example.com
+        O: farmer.com
         OU:
    hosts:
      - localhost
-     - farmer.example.com
+     - farmer.com
    ca:
       expiry: 131400h
       pathlength: 1

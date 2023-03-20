@@ -1,6 +1,6 @@
 PeerOrgs:
   - Name: Farmer
-    Domain: farmer.example.com
+    Domain: farmer.com
     EnableNodeOUs: true
     Template:
       Count: 1

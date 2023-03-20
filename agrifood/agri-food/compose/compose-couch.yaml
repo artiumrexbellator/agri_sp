@@ -27,7 +27,7 @@ services:
     networks:
       - test
 
-  peer0.supplier.example.com:
+  peer0.supplier.com:
     environment:
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb0:5984
@@ -56,7 +56,7 @@ services:
     networks:
       - test
 
-  peer0.farmer.example.com:
+  peer0.farmer.com:
     environment:
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb1:5984
