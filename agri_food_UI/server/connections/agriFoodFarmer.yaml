@@ -1,0 +1,191 @@
+---
+#
+# [Required]. A connection profile contains information about a set of network
+# components. It is typically used to configure gateway, allowing applications
+# interact with a network channel without worrying about the underlying
+# topology. A connection profile is normally created by an administrator who
+# understands this topology.
+#
+ name: "agrifood.profile.sample"
+#
+# [Optional]. Analogous to HTTP, properties with an "x-" prefix are deemed
+# "application-specific", and ignored by the gateway. For example, property
+# "x-type" with value "hlfv1" was originally used to identify a connection
+# profile for Fabric 1.x rather than 0.x.
+#
+ x-type: "hlfv1"
+#
+# [Required]. A short description of the connection profile
+#
+ description: "Sample connection profile for testing purpose using a farmer client"
+#
+# [Required]. Connection profile schema version. Used by the gateway to
+# interpret these data.
+#
+ version: "1.0"
+#
+# [Optional]. A logical description of each network channel; its peer and
+# orderer names and their roles within the channel. The physical details of
+# these components (e.g. peer IP addresses) will be specified later in the
+# profile; we focus first on the logical, and then the physical.
+#
+ channels:
+#
+# [Optional]. papernet is the only channel in this connection profile
+#
+  supplychain:
+     #
+     # [Optional]. Channel orderers for PaperNet. Details of how to connect to
+     # them is specified later, under the physical "orderers:" section
+     #
+     orderers:
+     #
+     # [Required]. Orderer logical name
+     #
+       - orderer.example.com
+     #
+     # [Optional]. Peers and their roles
+     #
+     peers:
+     #
+     # [Required]. Peer logical name
+     #
+       peer0.supplier.com:
+         #
+         # [Optional]. Is this an endorsing peer? (It must have chaincode
+         # installed.) Default: true
+         #
+         endorsingPeer: true
+         #
+         # [Optional]. Is this peer used for query? (It must have chaincode
+         # installed.) Default: true
+         #
+         chaincodeQuery: true
+         #
+         # [Optional]. Is this peer used for non-chaincode queries? All peers
+         # support these types of queries, which include queryBlock(),
+         # queryTransaction(), etc. Default: true
+         #
+         ledgerQuery: true
+         #
+         # [Optional]. Is this peer used as an event hub? All peers can produce
+         # events. Default: true
+         #
+         eventSource: true
+       #
+       peer0.farmer.com:
+         endorsingPeer: true
+         chaincodeQuery: true
+         ledgerQuery: true
+         eventSource: true
+
+ #
+ # [Required]. List of organizations for all channels. At least one organization
+ # is required.
+ #
+ organizations:
+    #
+    # [Required]. Organizational information for MagnetoCorp
+   #
+   Supplier:
+     #
+     # [Required]. The MSPID used to identify MagnetoCorp
+     #
+     mspid: SupplierMSP
+     #
+     # [Required]. The MagnetoCorp peers
+     #
+     peers:
+       - peer0.supplier.com
+     #
+     # [Optional]. Fabric-CA Certificate Authorities.
+     #
+   #
+   # [Optional]. Organizational information for DigiBank
+   #
+   Farmer:
+     #
+     # [Required]. The MSPID used to identify DigiBank
+     #
+     mspid: FarmerMSP
+     #
+     # [Required]. The DigiBank peers
+     #
+     peers:
+       - peer0.farmer.com
+     certificateAuthorities:
+       - ca-farmer
+ #
+ # [Optional]. Orderer physical information, by orderer name
+ #
+ orderers:
+   #
+   # [Required]. Name of MagnetoCorp orderer
+   #
+   orderer.example.com:
+     #
+     # [Required]. This orderer's IP address
+     #
+     url: grpc://localhost:7050
+     #
+     # [Optional]. gRPC connection properties used for communication
+     #
+     grpcOptions:
+       ssl-target-name-override: orderer.example.com
+ #
+ # [Required]. Peer physical information, by peer name. At least one peer is
+ # required.
+ #
+ peers:
+   #
+   # [Required]. First MagetoCorp peer physical properties
+   #
+   peer0.supplier.com:
+     #
+     # [Required]. Peer's IP address
+     #
+     url: grpc://localhost:7051
+     #
+     # [Optional]. gRPC connection properties used for communication
+     #
+     grpcOptions:
+       ssl-target-name-override: peer0.supplier.com
+       request-timeout: 120001
+   #
+   # [Optional]. Other MagnetoCorp peers
+   #
+   peer0.farmer.com:
+     url: grpc://localhost:9051
+     grpcOptions:
+       ssl-target-name-override: peer0.farmer.com
+       request-timeout: 120001
+
+ # [Optional]. Fabric-CA Certificate Authority physical information, by name.
+ # This information can be used to (e.g.) enroll new users. Communication is via
+ # REST, hence options relate to HTTP rather than gRPC.
+ #
+ certificateAuthorities:
+   #
+   # [Required]. farmer CA
+   #
+   ca-farmer:
+     #
+     # [Required]. CA IP address
+     #
+     url: http://localhost:8054
+     #
+     # [Optioanl]. HTTP connection properties used for communication
+     #
+     httpOptions:
+       verify: false
+     #
+     # [Optional]. Fabric-CA supports Certificate Signing Requests (CSRs). A
+     # registrar is needed to enroll new users.
+     #
+     registrar:
+       - enrollId: admin
+         enrollSecret: adminpw
+     #
+     # [Optional]. The name of the CA.
+     #
+     caName: ca-farmer
