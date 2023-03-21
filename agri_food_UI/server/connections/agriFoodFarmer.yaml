@@ -13,7 +13,7 @@
 # "x-type" with value "hlfv1" was originally used to identify a connection
 # profile for Fabric 1.x rather than 0.x.
 #
- x-type: "hlfv1"
+# x-type: "hlfv1"
 #
 # [Required]. A short description of the connection profile
 #
@@ -144,21 +144,25 @@
      #
      # [Required]. Peer's IP address
      #
-     url: grpc://localhost:7051
+     url: grpcs://localhost:7051
      #
      # [Optional]. gRPC connection properties used for communication
      #
      grpcOptions:
        ssl-target-name-override: peer0.supplier.com
        request-timeout: 120001
+     tlsCACerts:
+      path: server/certificates/supplier/tlsca.supplier.com-cert.pem
    #
    # [Optional]. Other MagnetoCorp peers
    #
    peer0.farmer.com:
-     url: grpc://localhost:9051
+     url: grpcs://localhost:9051
      grpcOptions:
        ssl-target-name-override: peer0.farmer.com
        request-timeout: 120001
+     tlsCACerts:
+      path: server/certificates/farmer/tlsca.farmer.com-cert.pem
 
  # [Optional]. Fabric-CA Certificate Authority physical information, by name.
  # This information can be used to (e.g.) enroll new users. Communication is via

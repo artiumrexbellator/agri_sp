@@ -173,9 +173,12 @@ function createOrgs() {
 
     set -x
     cryptogen generate --config=./ordrer/crypto-config.yaml --output="organizations"
-    rm -r explorer/organizations/
+    if [ -d 'explorer/organizations']; then
+      rm -r explorer/organizations/
+    fi
     mkdir explorer/organizations/
     cp -r organizations/peerOrganizations explorer/organizations/peerOrganizations && cp -r organizations/ordererOrganizations explorer/organizations 
+
     res=$?
     { set +x; } 2>/dev/null
     if [ $res -ne 0 ]; then
@@ -219,6 +222,12 @@ function createOrgs() {
     rm -r explorer/organizations/
     mkdir explorer/organizations/
     cp -r organizations/peerOrganizations explorer/organizations/peerOrganizations && cp -r organizations/ordererOrganizations explorer/organizations 
+
+    #copy tlsca files to connect clients with the network
+    mkdir -p ../../agri_food_UI/server/certificates/farmer
+    cp organizations/peerOrganizations/farmer.com/msp/tlscacerts/tlsca.farmer.com-cert.pem ../../agri_food_UI/server/certificates/farmer
+    mkdir -p ../../agri_food_UI/server/certificates/supplier
+    cp organizations/peerOrganizations/supplier.com/msp/tlscacerts/tlsca.supplier.com-cert.pem ../../agri_food_UI/server/certificates/supplier
 
 }
 
@@ -342,6 +351,15 @@ function networkDown() {
 
   # Don't remove the generated artifacts -- note, the ledgers are always removed
   if [ "$MODE" != "restart" ]; then
+    # delete organizations folder in explorer
+    rm -r explorer/organizations/
+    #delete certificates and the wallet in node server
+    if [ -d "../../agri_food_UI/server/certificates" ]; then
+      rm -r ../../agri_food_UI/server/certificates
+    fi
+    if [ -d "../../agri_food_UI/server/identity" ]; then
+      rm -r ../../agri_food_UI/server/identity
+    fi
     # Bring down the network, deleting the volumes
     ${CONTAINER_CLI} volume rm orderer.example.com peer0.supplier.com peer0.farmer.com
     #Cleanup the chaincode containers
