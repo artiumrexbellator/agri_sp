@@ -11,21 +11,6 @@ const parentDir = path.dirname(path.dirname(currentDir));
 const channelName = "supplychain";
 const chaincodeId = "basic";
 
-const createGateway = async () => {
-  const wallet = await Wallets.newFileSystemWallet(
-    "./server/identity/user/farmer/wallet"
-  );
-  const connectionProfile = yaml.safeLoad(
-    readFileSync("./connections/agriFoodFarmer.yaml", "utf8")
-  );
-  const gateway = new Gateway();
-  const gatewayOptions = {
-    identity: "User1@farmer.com", // Previously imported identity
-    wallet,
-  };
-  await gateway.connect(connectionProfile, gatewayOptions);
-};
-
 const loadIdentity = async () => {
   const wallet = await Wallets.newFileSystemWallet(
     "./server/identity/user/farmer/wallet"
@@ -55,7 +40,7 @@ const loadIdentity = async () => {
 
 app.get("/createCommodity", async (req, res) => {
   await loadIdentity();
-  const connectionProfile = yaml.load(
+  const connectionProfile = await yaml.load(
     readFileSync(
       process.cwd() + "/server/connections/agriFoodFarmer.yaml",
       "utf8"
@@ -76,7 +61,7 @@ app.get("/createCommodity", async (req, res) => {
     const contract = network.getContract(chaincodeId);
 
     // Submit transactions for the smart contract
-    const args = ["0", "test", "test"];
+    const args = ["05", "test", "test"];
     const submitResult = await contract.submitTransaction(
       "CreateCommodity",
       ...args

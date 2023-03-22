@@ -173,9 +173,7 @@ function createOrgs() {
 
     set -x
     cryptogen generate --config=./ordrer/crypto-config.yaml --output="organizations"
-    if [ -d 'explorer/organizations']; then
-      rm -r explorer/organizations/
-    fi
+    
     mkdir explorer/organizations/
     cp -r organizations/peerOrganizations explorer/organizations/peerOrganizations && cp -r organizations/ordererOrganizations explorer/organizations 
 
@@ -219,15 +217,17 @@ function createOrgs() {
 
   infoln "Generating CCP files for supplier and farmer"
   ./ccp-template/ccp-generate.sh
-    rm -r explorer/organizations/
-    mkdir explorer/organizations/
-    cp -r organizations/peerOrganizations explorer/organizations/peerOrganizations && cp -r organizations/ordererOrganizations explorer/organizations 
+  rm -r explorer/organizations/
+  mkdir explorer/organizations/
+  cp -r organizations/peerOrganizations explorer/organizations/peerOrganizations && cp -r organizations/ordererOrganizations explorer/organizations 
 
-    #copy tlsca files to connect clients with the network
-    mkdir -p ../../agri_food_UI/server/certificates/farmer
-    cp organizations/peerOrganizations/farmer.com/msp/tlscacerts/tlsca.farmer.com-cert.pem ../../agri_food_UI/server/certificates/farmer
-    mkdir -p ../../agri_food_UI/server/certificates/supplier
-    cp organizations/peerOrganizations/supplier.com/msp/tlscacerts/tlsca.supplier.com-cert.pem ../../agri_food_UI/server/certificates/supplier
+  #copy tlsca files to connect clients with the network
+  mkdir -p ../../agri_food_UI/server/certificates/farmer
+  cp organizations/peerOrganizations/farmer.com/msp/tlscacerts/tlsca.farmer.com-cert.pem ../../agri_food_UI/server/certificates/farmer
+  mkdir -p ../../agri_food_UI/server/certificates/supplier
+  cp organizations/peerOrganizations/supplier.com/msp/tlscacerts/tlsca.supplier.com-cert.pem ../../agri_food_UI/server/certificates/supplier
+  mkdir -p ../../agri_food_UI/server/certificates/orderer
+  cp organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem ../../agri_food_UI/server/certificates/orderer
 
 }
 

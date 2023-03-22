@@ -18,6 +18,7 @@ type SmartContract struct {
 // Asset describes basic details of what makes up a simple asset
 type Commodity struct {
 	ID     string `json:"ID"`
+	Owner  string `json:"owner"`
 	Origin string `json:"origin"`
 	Type   string `json:"type"`
 }
@@ -31,9 +32,14 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 	if creatorOrg != "FarmerMSP" {
 		return fmt.Errorf("only members of FarmerMSP can create commodities")
 	}
-
+	//get owner ID
+	var owner string = ""
+	owner, err = cid.GetID(ctx.GetStub())
+	if err != nil {
+		return fmt.Errorf("ownerId error: %v", err)
+	}
 	//var today = time.Now().UTC().Format("2006-01-02")
-	assetKey, err := ctx.GetStub().CreateCompositeKey("commodity", []string{id})
+	assetKey, err := ctx.GetStub().CreateCompositeKey("commodity", []string{owner, id})
 	if err != nil {
 		return fmt.Errorf("failed creating the key: %v", err)
 	}
@@ -48,6 +54,7 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 	if exists {
 		return fmt.Errorf("the commodity %s already exists", assetKey)
 	}
+
 	/* sp_date, err := time.Parse("2006-01-02", supplyDate)
 	if err != nil {
 		return fmt.Errorf("wrong supply date: %v", err)
@@ -60,6 +67,7 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 		ID:     id,
 		Origin: origin,
 		Type:   materialType,
+		Owner:  owner,
 		/* SupplyDate:     sp_date,
 		ExpirationDate: exp_date, */
 	}

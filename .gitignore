@@ -4,6 +4,7 @@ agrifood/agri-food/chaincode/vendor
 agrifood/agri-food/commands_for_further_concat.txt
 agrifood/agri-food/explorer/organizations/
 agri_food_UI/server/certificates/
+agri_food_UI/server/identity/
 agrifood/*
 !agrifood/agri-food
 notes

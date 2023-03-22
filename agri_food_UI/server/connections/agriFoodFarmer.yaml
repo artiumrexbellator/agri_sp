@@ -126,12 +126,15 @@
      #
      # [Required]. This orderer's IP address
      #
-     url: grpc://localhost:7050
+     url: grpcs://localhost:7050
      #
      # [Optional]. gRPC connection properties used for communication
      #
      grpcOptions:
        ssl-target-name-override: orderer.example.com
+       request-timeout: 120001
+     tlsCACerts:
+      path: server/certificates/orderer/tlsca.example.com-cert.pem
  #
  # [Required]. Peer physical information, by peer name. At least one peer is
  # required.
