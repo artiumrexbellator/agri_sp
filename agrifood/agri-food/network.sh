@@ -361,7 +361,7 @@ function networkDown() {
       rm -r ../../agri_food_UI/server/identity
     fi
     # Bring down the network, deleting the volumes
-    ${CONTAINER_CLI} volume rm orderer.example.com peer0.supplier.com peer0.farmer.com
+    #${CONTAINER_CLI} volume rm orderer.example.com peer0.supplier.com peer0.farmer.com
     #Cleanup the chaincode containers
     clearContainers
     #Cleanup images

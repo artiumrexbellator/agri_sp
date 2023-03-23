@@ -61,13 +61,13 @@ app.get("/createCommodity", async (req, res) => {
     const contract = network.getContract(chaincodeId);
 
     // Submit transactions for the smart contract
-    const args = ["05", "test", "test"];
+    const args = ["08", "test", "test"];
     const submitResult = await contract.submitTransaction(
       "CreateCommodity",
       ...args
     );
 
-    console.log(submitResult);
+    console.log(submitResult.toJSON());
   } finally {
     // Disconnect from the gateway peer when all work for this client identity is complete
     gateway.disconnect();
