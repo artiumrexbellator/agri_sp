@@ -92,7 +92,7 @@ app.post("/api/auth", async (req, res) => {
       res.cookie("token", jwtToken, { httpOnly: true }).sendStatus(200);
     });
   } catch (error) {
-    res.status(400);
+    res.sendStatus(400);
   }
 });
 
@@ -151,6 +151,29 @@ app.post("/api/createCommodity", async (req, res) => {
     const submitResult = await contract.submitTransaction(
       "CreateCommodity",
       ...args
+    );
+
+    console.log(submitResult.toJSON());
+    res.sendStatus(200);
+  } catch (error) {
+    res.sendStatus(500);
+  } finally {
+    // Disconnect from the gateway peer when all work for this client identity is complete
+    gateway.disconnect();
+  }
+});
+
+app.get("/api/get/commodity", async (req, res) => {
+  const gateway = await getGateway(req.cookies.token);
+  try {
+    // Obtain the smart contract with which our application wants to interact
+    const network = await gateway.getNetwork(channelName);
+    const contract = network.getContract(chaincodeId);
+
+    // Submit transactions for the smart contract
+    const args = [req.body.id, req.body.origin, req.body.type];
+    const submitResult = await contract.submitTransaction(
+      "GetFarmerCommodities"
     );
 
     console.log(submitResult.toJSON());

@@ -5,6 +5,8 @@ agrifood/agri-food/commands_for_further_concat.txt
 agrifood/agri-food/explorer/organizations/
 agri_food_UI/server/certificates/
 agri_food_UI/server/identity/
+agri_food_UI/server/uploads/
+agri_food_UI/server/wallets/
 agrifood/*
 !agrifood/agri-food
 notes

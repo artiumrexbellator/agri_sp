@@ -4,7 +4,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import { useReducer } from 'react';
 import { server } from '../axios/axios'
 import axios from 'axios';
-
+import { redirect } from "react-router-dom";
 interface Login {
     mspId: string,
     identity: string,
@@ -104,7 +104,6 @@ const Connect: React.FC = () => {
             if (info.file.status !== 'uploading') {
             }
             if (info.file.status === 'done') {
-                console.log(info.file);
                 dispatch({ type: AUTH_KEY, payload: { key: info.file.response.filename } })
                 message.success(`${info.file.name} file uploaded successfully`);
             } else if (info.file.status === 'error') {
@@ -132,6 +131,7 @@ const Connect: React.FC = () => {
                 if (response.status == 200) {
                     setAuthModal(false)
                     message.success({ content: 'the identity is signed successfully' })
+                    return redirect('/')
                 } else if (response.status == 400) {
                     message.error({ content: 'error signing certificat and key' })
                 }

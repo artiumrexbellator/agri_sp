@@ -1,9 +1,12 @@
 import HomeButton from "./HomeButton";
-import React, { useState } from 'react';
-import { Button, Space, Table, Modal } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Button, Space, Table, Modal, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import axios from "axios";
+import { server } from "../axios/axios";
 
 interface DataType {
+    key: string,
     origin: string;
     type: string;
 }
@@ -11,6 +14,19 @@ interface DataType {
 
 
 const ManageCommodity: React.FC = () => {
+    useEffect(() => {
+        try {
+            axios.get(`${server}/api/get/commodity`, { withCredentials: true }).then(response => {
+                if (response.status == 200) {
+                    message.success({ content: 'commodity is added successfully' })
+                } else {
+                    message.error({ content: 'internal error' })
+                }
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    }, [])
     const [modalOpen, setModalOpen] = useState(false);
     const columns: ColumnsType<DataType> = [
         {
@@ -40,11 +56,13 @@ const ManageCommodity: React.FC = () => {
 
     const data: DataType[] = [
         {
+            key: '1',
             origin: '1',
             type: 'John Brown',
 
         },
         {
+            key: '2',
             origin: '1',
             type: 'John Brown',
 

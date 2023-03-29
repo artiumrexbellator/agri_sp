@@ -1,5 +1,5 @@
 import HomeButton from './HomeButton';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button, Form, Input, message } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { QRCode } from 'antd';
@@ -41,7 +41,6 @@ const CreateCommodity: React.FC = () => {
                 } else {
                     message.error({ content: 'internal error' })
                 }
-                console.log(response);
             });
         } catch (err) {
             console.log(err);
