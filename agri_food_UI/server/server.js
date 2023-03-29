@@ -24,7 +24,16 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 //Parse cookies in body
 app.use(cookieParser());
-
+//use jwt middleware
+app.use(
+  authMiddleware({
+    secret: jwtSecret,
+    algorithms: ["HS256"],
+    getToken: (req) => req.cookies.token,
+  }).unless({
+    path: ["/upload/cert", "/upload/key", "/api/auth"],
+  })
+);
 //Paths to parent folders to store wallets
 const currentFilePath = new URL(import.meta.url).pathname;
 const currentDir = path.dirname(currentFilePath);
@@ -37,20 +46,12 @@ const upload = multer({ dest: "./server/uploads/" });
 const channelName = "supplychain";
 const chaincodeId = "basic";
 
-// Create an authentication middleware function
-authMiddleware({
-  secret: jwtSecret,
-  algorithms: ["HS256"],
-  getToken: (req) => req.cookies.token,
-});
-
 //get token in cookie
 app.get("/api/cookie", (req, res) => {
   const token = req.cookies.token;
   if (!token) {
     return res.status(401).send("Unauthorized");
   }
-  // Do something with the token
   res.send(token);
 });
 //function to upload certs
@@ -63,16 +64,8 @@ app.post("/upload/key", upload.single("key"), (req, res) => {
 });
 // Sign a new JWT token for the user
 function signJwtToken(userId) {
-  return jwt.sign({ sub: userId }, jwtSecret, { expiresIn: "1h" });
+  return jwt.sign({ sub: userId }, jwtSecret, { expiresIn: "10h" });
 }
-
-// Authenticate the user with the authMiddleware function
-app.get("/api/user", authMiddleware, (req, res) => {
-  const userId = req.user.sub; // user ID from decoded JWT token
-  // Use the user ID to fetch the user data from your database
-  // ...
-  res.json({ user: { id: userId, name: "John Doe" } });
-});
 
 // Log in the user and send a JWT token in a cookie
 app.post("/api/auth", async (req, res) => {
@@ -94,12 +87,12 @@ app.post("/api/auth", async (req, res) => {
   };
   try {
     gateway.connect(connectionProfile, gatewayOptions).then(() => {
-      const jwtToken = signJwtToken(req.body.identity + "/" + req.body.mspId);
+      const jwtToken = signJwtToken(req.body.mspId + "/" + req.body.identity);
       gateway.disconnect();
       res.cookie("token", jwtToken, { httpOnly: true }).sendStatus(200);
     });
   } catch (error) {
-    res.sendStatus(400);
+    res.status(400);
   }
 });
 
@@ -124,34 +117,46 @@ const loadIdentity = async (args) => {
 
   await wallet.put(identityLabel, Identity);
 };
+//the token is provided to get path to user's wallet and verify connection
+const getGateway = async (token) => {
+  try {
+    const params = jwt.decode(token).sub.split("/");
+    const connectionProfile = await yaml.load(
+      readFileSync(process.cwd() + "/server/connections/agriFood.yaml", "utf8")
+    );
+    const wallet = await Wallets.newFileSystemWallet(
+      `./server/wallets/${params[0]}/${params[1]}`
+    );
+    const gateway = new Gateway();
+    const gatewayOptions = {
+      identity: "userWallet", // Previously imported identity
+      wallet,
+    };
+    await gateway.connect(connectionProfile, gatewayOptions);
+    return gateway;
+  } catch (error) {
+    return null;
+  }
+};
 
-app.get("/createCommodity", async (req, res) => {
-  await loadIdentity();
-  const connectionProfile = await yaml.load(
-    readFileSync(process.cwd() + "/server/connections/agriFood.yaml", "utf8")
-  );
-  const wallet = await Wallets.newFileSystemWallet(
-    "./server/identity/user/wallet"
-  );
-  const gateway = new Gateway();
-  const gatewayOptions = {
-    identity: "User1@farmer.com", // Previously imported identity
-    wallet,
-  };
-  await gateway.connect(connectionProfile, gatewayOptions);
+app.post("/api/createCommodity", async (req, res) => {
+  const gateway = await getGateway(req.cookies.token);
   try {
     // Obtain the smart contract with which our application wants to interact
     const network = await gateway.getNetwork(channelName);
     const contract = network.getContract(chaincodeId);
 
     // Submit transactions for the smart contract
-    const args = ["08", "test", "test"];
+    const args = [req.body.id, req.body.origin, req.body.type];
     const submitResult = await contract.submitTransaction(
       "CreateCommodity",
       ...args
     );
 
     console.log(submitResult.toJSON());
+    res.sendStatus(200);
+  } catch (error) {
+    res.sendStatus(500);
   } finally {
     // Disconnect from the gateway peer when all work for this client identity is complete
     gateway.disconnect();

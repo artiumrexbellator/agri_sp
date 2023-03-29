@@ -4,7 +4,6 @@ import { UploadOutlined } from '@ant-design/icons';
 import { useReducer } from 'react';
 import { server } from '../axios/axios'
 import axios from 'axios';
-import { v4 as uuidv4 } from 'uuid';
 
 interface Login {
     mspId: string,
@@ -62,7 +61,7 @@ const Connect: React.FC = () => {
         key: '',
     };
     const selectAfter = (
-        <Select defaultValue="@farmer.com" onChange={(e: string) => {
+        <Select defaultValue={initialState.mspId} onChange={(e: string) => {
             dispatch({ type: AUTH_MSPID, payload: { mspId: e } })
         }}>
             <Option value="SupplierMSP">@supplier.com</Option>
@@ -76,7 +75,6 @@ const Connect: React.FC = () => {
     );
     const [state, dispatch] = useReducer(reducer, initialState);
     const [authModal, setAuthModal] = useState(false)
-    const [loginModal, setLoginModal] = useState(false)
     const handleUploadCert: UploadProps = {
         name: 'cert',
         action: `${server}/upload/cert`,

@@ -18,11 +18,11 @@ const MenuContainer: React.FC<MenuProps> = ({ menuItems }) => {
         <div className="menu-container">
             <HomeButton />
             {menuItems.map((menuItem, index) => (
-                <Link to={menuItem.link}>
+                <Link to={menuItem.link} key={index}
+                >
                     <Card
                         hoverable
                         className="menu-card"
-                        key={index}
                     >
                         <Card.Meta title={menuItem.title} description={menuItem.description} />
                     </Card>

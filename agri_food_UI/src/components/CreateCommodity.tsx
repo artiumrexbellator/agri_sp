@@ -1,9 +1,10 @@
 import HomeButton from './HomeButton';
-import React, { useState } from 'react';
-import { Button, Form, Input } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Button, Form, Input, message } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { QRCode } from 'antd';
-
+import axios from 'axios';
+import { server } from "../axios/axios"
 const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
@@ -21,27 +22,32 @@ const validateMessages = {
 };
 /* eslint-enable no-template-curly-in-string */
 
-const onFinish = (values: any) => {
-    console.log(values);
-};
+
 const CreateCommodity: React.FC = () => {
-    const uuid = uuidv4();
-    const [commodity, setCommodity] = useState<Commodity>({ id: '0', origin: '', type: '' })
-    const idHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const com: Commodity = { ...commodity, id: e.target.value }
-        setCommodity(com)
-    }
+    const [commodity, setCommodity] = useState<Commodity>({ id: uuidv4(), origin: '', type: '' })
     const typeHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
         const com: Commodity = { ...commodity, type: e.target.value }
         setCommodity(com)
     }
     const originHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const com: Commodity = { ...commodity, id: e.target.value }
+        const com: Commodity = { ...commodity, origin: e.target.value }
         setCommodity(com)
     }
     const submit = () => {
+        try {
+            axios.post(`${server}/api/createCommodity`, commodity, { withCredentials: true }).then(response => {
+                if (response.status == 200) {
+                    message.success({ content: 'commodity is added successfully' })
+                } else {
+                    message.error({ content: 'internal error' })
+                }
+                console.log(response);
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
-    }
     return (
         <div className='content'>
             <HomeButton />
@@ -49,11 +55,10 @@ const CreateCommodity: React.FC = () => {
             <Form
                 {...layout}
                 name="nest-messages"
-                onFinish={onFinish}
                 validateMessages={validateMessages}
             >
-                <Form.Item name={['user', 'id']} label="id" >
-                    <Input disabled defaultValue={uuid} onChange={idHandler} />
+                <Form.Item initialValue={commodity.id} name={['user', 'id']} label="id" >
+                    <Input disabled />
                 </Form.Item>
                 <Form.Item name={['user', 'origin']} label="origin" rules={[{ required: true }]}>
                     <Input onChange={originHandler} />
@@ -63,13 +68,13 @@ const CreateCommodity: React.FC = () => {
                 </Form.Item>
 
                 <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 12 }}>
-                    <Button type="primary" htmlType="submit">
+                    <Button type="primary" htmlType="submit" onClick={submit}>
                         Submit
                     </Button>
                 </Form.Item>
             </Form>
             <div style={{ padding: '10px' }}>
-                <QRCode value={uuid} />
+                <QRCode value={commodity.id} />
             </div>
         </div>
     );

@@ -22,7 +22,6 @@ const Home: React.FC = () => {
             await axios.get(`${server}/api/cookie`, { withCredentials: true }).then(response => {
                 if (response.status == 200) {
                     setToken(response.data)
-                    console.log(token)
                 }
             });
         }
@@ -30,15 +29,18 @@ const Home: React.FC = () => {
     }, [])
     const menuItems = [
         {
+            key: 1,
             title: 'Create commodity',
             link: 'createCommodity',
         },
         {
+            key: 2,
             title: 'manage Commodity',
             description: 'You can view you commmodities and issue keys for suppliers',
             link: 'manageCommodity',
         },
         {
+            key: 3,
             title: 'sell commodity',
             description: 'choose this option if you want to sell commodity to broker dealers which can be yourself too',
             link: '',
@@ -58,7 +60,7 @@ const Home: React.FC = () => {
             <Content className="content">
                 <Router>
                     <Routes>
-                        <Route path="/login" element={<Connect />
+                        <Route path="/login" element={token ? <Navigate to="/" /> : <Connect />
                         } />
                         <Route path="/" element={token ? <MenuContainer menuItems={menuItems} /> : <Navigate to="/login" />
                         } />
