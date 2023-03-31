@@ -1,24 +1,124 @@
 import HomeButton from "./HomeButton";
 import React, { useState, useEffect } from 'react';
-import { Button, Space, Table, Modal, message } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
+import { Button, Space, Table, Popconfirm, message } from 'antd';
+import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
+import type { FilterValue, SorterResult } from 'antd/es/table/interface';
 import axios from "axios";
 import { server } from "../axios/axios";
 
 interface DataType {
-    key: string,
+    id: string,
     origin: string;
     type: string;
+    create_date: string;
+}
+
+interface TableParams {
+    pagination?: TablePaginationConfig;
+    sortField?: string;
+    sortOrder?: string;
+    filters?: Record<string, FilterValue>;
 }
 
 
-
 const ManageCommodity: React.FC = () => {
-    useEffect(() => {
+
+    const [confirmStates, setConfirmStates] = useState<{ [key: string]: boolean }>({});
+    const [confirmLoading, setConfirmLoading] = useState({});
+    const [data, setData] = useState<DataType[]>();
+    const [loading, setLoading] = useState(false);
+    const [tableParams, setTableParams] = useState<TableParams>({
+        pagination: {
+            current: 1,
+            pageSize: 10,
+        },
+    });
+    const columns: ColumnsType<DataType> = [
+        {
+            title: 'Origin',
+            dataIndex: 'origin',
+            sorter: true,
+        },
+        {
+            title: 'Type',
+            dataIndex: 'type',
+        }, {
+            title: 'Created at',
+            dataIndex: 'create_date',
+        }
+        , {
+            title: 'Action',
+            render: (text, record) => {
+
+                const showPopconfirm = (id: string) => {
+                    setConfirmStates(prevStates => {
+                        return {
+                            ...prevStates,
+                            [id]: true
+                        }
+                    });
+                };
+
+                const handleOk = (id: string) => {
+                    setConfirmLoading(true);
+
+                    setTimeout(() => {
+                        setConfirmStates(prevStates => {
+                            return {
+                                ...prevStates,
+                                [id]: false
+                            }
+                        });
+                        setConfirmLoading(false);
+                    }, 2000);
+                };
+
+                const handleCancel = (id: string) => {
+                    console.log('Clicked cancel button');
+                    setConfirmStates(prevStates => {
+                        return {
+                            ...prevStates,
+                            [id]: false
+                        }
+                    });
+                };
+
+                return (
+                    <Space size="middle">
+                        <Popconfirm
+                            title="Title"
+                            description={`Do you want to create an agreement for the commodity ${record.id}?`}
+                            open={confirmStates[record.id] || false}
+                            onConfirm={() => handleOk(record.id)}
+                            okButtonProps={{ loading: confirmLoading }}
+                            onCancel={() => handleCancel(record.id)}
+                        >
+                            <Button type="primary" onClick={() => showPopconfirm(record.id)}>Issue an agreement</Button>
+                        </Popconfirm>
+                    </Space>
+                );
+
+            },
+        }
+
+    ];
+
+    const fetchData = () => {
+        setLoading(true);
         try {
             axios.get(`${server}/api/get/commodity`, { withCredentials: true }).then(response => {
                 if (response.status == 200) {
-                    message.success({ content: 'commodity is added successfully' })
+                    setData(response.data)
+                    setLoading(false);
+                    setTableParams({
+                        ...tableParams,
+                        pagination: {
+                            ...tableParams.pagination,
+                            total: 200,
+                            // 200 is mock data, you should read it from server
+                            // total: data.totalCount,
+                        },
+                    });
                 } else {
                     message.error({ content: 'internal error' })
                 }
@@ -26,63 +126,17 @@ const ManageCommodity: React.FC = () => {
         } catch (err) {
             console.log(err);
         }
-    }, [])
-    const [modalOpen, setModalOpen] = useState(false);
-    const columns: ColumnsType<DataType> = [
-        {
-            title: 'origin',
-            dataIndex: 'origin',
-            key: 'origin',
-            render: (text) => <a>{text}</a>,
-        },
-        {
-            title: 'type',
-            dataIndex: 'type',
-            key: 'type',
-        },
+    }
+    useEffect(() => {
+        fetchData();
 
-        {
-            title: 'Action',
-            key: 'action',
-            render: (_, record) => (
-                <Space size="middle">
-                    <Button type="primary" onClick={() => {
-                        setModalOpen(true);
-                    }}>Issue an agreement</Button>
-                </Space>
-            ),
-        },
-    ];
-
-    const data: DataType[] = [
-        {
-            key: '1',
-            origin: '1',
-            type: 'John Brown',
-
-        },
-        {
-            key: '2',
-            origin: '1',
-            type: 'John Brown',
-
-        }
-    ];
+    }, [JSON.stringify(tableParams)])
 
     return (
         <div className='content'>
             <HomeButton />
             <Table columns={columns} dataSource={data} />
-            <Modal
-                title="20px to Top"
-                centered
-                open={modalOpen}
-                onOk={() => setModalOpen(false)}
-                onCancel={() => setModalOpen(false)}
-            >
-                <p>some contents...</p>
 
-            </Modal>
         </div>
     )
 }

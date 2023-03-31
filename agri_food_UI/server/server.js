@@ -1,7 +1,7 @@
 import express from "express";
 import { Wallets, Gateway } from "fabric-network";
 import * as yaml from "js-yaml";
-import { readFileSync } from "fs";
+import { readFileSync, unlink } from "fs";
 import path from "path";
 import jwt from "jsonwebtoken";
 import { expressjwt as authMiddleware } from "express-jwt";
@@ -56,10 +56,34 @@ app.get("/api/cookie", (req, res) => {
 });
 //function to upload certs
 app.post("/upload/cert", upload.single("cert"), (req, res) => {
+  const filePath = req.file.path;
+
+  // Schedule file deletion after 3 minutes (180,000 ms)
+  setTimeout(() => {
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(`Deleted file ${filePath}`);
+      }
+    });
+  }, 180000);
   res.json({ filename: req.file.filename });
 });
 //function to upload certs
 app.post("/upload/key", upload.single("key"), (req, res) => {
+  const filePath = req.file.path;
+
+  // Schedule file deletion after 3 minutes 180,000 ms)
+  setTimeout(() => {
+    fs.unlink(filePath, (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log(`Deleted file ${filePath}`);
+      }
+    });
+  }, 180000);
   res.json({ filename: req.file.filename });
 });
 // Sign a new JWT token for the user
@@ -172,14 +196,14 @@ app.get("/api/get/commodity", async (req, res) => {
 
     // Submit transactions for the smart contract
     const args = [req.body.id, req.body.origin, req.body.type];
-    const submitResult = await contract.submitTransaction(
+    const submitResult = await contract.evaluateTransaction(
       "GetFarmerCommodities"
     );
-
-    console.log(submitResult.toJSON());
-    res.sendStatus(200);
+    const resultJSON = JSON.parse(submitResult.toString("utf8"));
+    console.log(resultJSON);
+    res.status(200).json(resultJSON);
   } catch (error) {
-    res.sendStatus(500);
+    res.status(500).send("error invoking chaincode");
   } finally {
     // Disconnect from the gateway peer when all work for this client identity is complete
     gateway.disconnect();
