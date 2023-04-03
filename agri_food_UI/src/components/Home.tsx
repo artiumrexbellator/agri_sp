@@ -10,6 +10,8 @@ import { BrowserRouter as Router, Navigate } from 'react-router-dom';
 import CreateCommodity from './CreateCommodity';
 import axios from 'axios';
 import { server } from '../axios/axios';
+import ManageAgreements from './ManageAgreements';
+import PushSupplies from './PushSupplies';
 const titleStyle: React.CSSProperties = {
     color: 'white',
     marginTop: '10px'
@@ -41,9 +43,14 @@ const Home: React.FC = () => {
         },
         {
             key: 3,
-            title: 'sell commodity',
-            description: 'choose this option if you want to sell commodity to broker dealers which can be yourself too',
-            link: '',
+            title: 'manage agreements',
+            description: 'view all the agreements you issued for a specific commodity',
+            link: 'manageAgreements',
+        }, {
+            key: 4,
+            title: 'add supplies to a commodity',
+            description: 'you can add supplies to a specific commodity by providing necessary and valid identities',
+            link: 'createSupply',
         }
     ];
 
@@ -68,6 +75,9 @@ const Home: React.FC = () => {
                         <Route path="/createCommodity" element={token ? <CreateCommodity /> : <Navigate to="/login" />
                         } />
                         <Route path="/manageCommodity" element={token ? <ManageCommodity /> : <Navigate to="/login" />
+                        } />
+                        <Route path="/manageAgreements" element={token ? <ManageAgreements /> : <Navigate to="/login" />
+                        } /><Route path="/createSupply" element={token ? <PushSupplies /> : <Navigate to="/login" />
                         } />
                     </Routes>
                 </Router>

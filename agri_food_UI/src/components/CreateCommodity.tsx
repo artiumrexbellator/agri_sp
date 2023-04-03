@@ -35,7 +35,7 @@ const CreateCommodity: React.FC = () => {
     }
     const submit = () => {
         try {
-            axios.post(`${server}/api/createCommodity`, commodity, { withCredentials: true }).then(response => {
+            axios.post(`${server}/api/create/commodity`, commodity, { withCredentials: true }).then(response => {
                 if (response.status == 200) {
                     message.success({ content: 'commodity is added successfully' })
                 } else {

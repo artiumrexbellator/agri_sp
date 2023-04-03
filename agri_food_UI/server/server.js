@@ -35,9 +35,9 @@ app.use(
   })
 );
 //Paths to parent folders to store wallets
-const currentFilePath = new URL(import.meta.url).pathname;
+/* const currentFilePath = new URL(import.meta.url).pathname;
 const currentDir = path.dirname(currentFilePath);
-const parentDir = path.dirname(path.dirname(currentDir));
+const parentDir = path.dirname(path.dirname(currentDir)); */
 
 //used to upload certs and keys from users
 const upload = multer({ dest: "./server/uploads/" });
@@ -60,7 +60,7 @@ app.post("/upload/cert", upload.single("cert"), (req, res) => {
 
   // Schedule file deletion after 3 minutes (180,000 ms)
   setTimeout(() => {
-    fs.unlink(filePath, (err) => {
+    unlink(filePath, (err) => {
       if (err) {
         console.error(err);
       } else {
@@ -76,7 +76,7 @@ app.post("/upload/key", upload.single("key"), (req, res) => {
 
   // Schedule file deletion after 3 minutes 180,000 ms)
   setTimeout(() => {
-    fs.unlink(filePath, (err) => {
+    unlink(filePath, (err) => {
       if (err) {
         console.error(err);
       } else {
@@ -163,7 +163,8 @@ const getGateway = async (token) => {
   }
 };
 
-app.post("/api/createCommodity", async (req, res) => {
+//create the commodity of the client
+app.post("/api/create/commodity", async (req, res) => {
   const gateway = await getGateway(req.cookies.token);
   try {
     // Obtain the smart contract with which our application wants to interact
@@ -176,8 +177,6 @@ app.post("/api/createCommodity", async (req, res) => {
       "CreateCommodity",
       ...args
     );
-
-    console.log(submitResult.toJSON());
     res.sendStatus(200);
   } catch (error) {
     res.sendStatus(500);
@@ -186,7 +185,7 @@ app.post("/api/createCommodity", async (req, res) => {
     gateway.disconnect();
   }
 });
-
+//api to get commodities of the authentified client
 app.get("/api/get/commodity", async (req, res) => {
   const gateway = await getGateway(req.cookies.token);
   try {
@@ -195,15 +194,84 @@ app.get("/api/get/commodity", async (req, res) => {
     const contract = network.getContract(chaincodeId);
 
     // Submit transactions for the smart contract
-    const args = [req.body.id, req.body.origin, req.body.type];
     const submitResult = await contract.evaluateTransaction(
       "GetFarmerCommodities"
     );
     const resultJSON = JSON.parse(submitResult.toString("utf8"));
-    console.log(resultJSON);
+    //console.log(resultJSON);
     res.status(200).json(resultJSON);
   } catch (error) {
     res.status(500).send("error invoking chaincode");
+  } finally {
+    // Disconnect from the gateway peer when all work for this client identity is complete
+    gateway.disconnect();
+  }
+});
+//api to get agreements of the authentified client
+app.get("/api/get/agreements", async (req, res) => {
+  const gateway = await getGateway(req.cookies.token);
+  try {
+    // Obtain the smart contract with which our application wants to interact
+    const network = await gateway.getNetwork(channelName);
+    const contract = network.getContract(chaincodeId);
+
+    // Submit transactions for the smart contract
+    const submitResult = await contract.evaluateTransaction("GetAgreements");
+    const resultJSON = JSON.parse(submitResult.toString("utf8"));
+    res.status(200).json(resultJSON);
+  } catch (error) {
+    res.status(500).send("error invoking chaincode");
+  } finally {
+    // Disconnect from the gateway peer when all work for this client identity is complete
+    gateway.disconnect();
+  }
+});
+//api to create an agreement for a specific commodity
+app.post("/api/create/agreement", async (req, res) => {
+  const gateway = await getGateway(req.cookies.token);
+  try {
+    // Obtain the smart contract with which our application wants to interact
+    const network = await gateway.getNetwork(channelName);
+    const contract = network.getContract(chaincodeId);
+
+    // Submit transactions for the smart contract
+    const args = [req.body.assetId, req.body.agreementId];
+    const result = await contract.submitTransaction("CreateAgreement", ...args);
+    const resultJSON = JSON.parse(result.toString("utf8"));
+    if (resultJSON) res.sendStatus(200);
+    else res.sendStatus(500);
+  } catch (error) {
+    res.sendStatus(500);
+  } finally {
+    // Disconnect from the gateway peer when all work for this client identity is complete
+    gateway.disconnect();
+  }
+});
+//api to push supplies in a commodity
+app.post("/api/create/supply", async (req, res) => {
+  const gateway = await getGateway(req.cookies.token);
+  try {
+    // Obtain the smart contract with which our application wants to interact
+    const network = await gateway.getNetwork(channelName);
+    const contract = network.getContract(chaincodeId);
+
+    // Submit transactions for the smart contract
+    const args = [
+      req.body.agreement,
+      req.body.commodity,
+      req.body.id,
+      req.body.type,
+      req.body.quantity,
+    ];
+    const result = await contract.submitTransaction(
+      "PushSuppliesToCommodity",
+      ...args
+    );
+    const resultJSON = JSON.parse(result.toString("utf8"));
+    if (resultJSON) res.sendStatus(200);
+    else res.sendStatus(500);
+  } catch (error) {
+    res.sendStatus(500);
   } finally {
     // Disconnect from the gateway peer when all work for this client identity is complete
     gateway.disconnect();
