@@ -12,6 +12,7 @@ interface DataType {
     asset_id: string;
     created_date?: string;
     used_by?: string;
+    organization?: string;
     consumed: boolean;
 }
 
@@ -60,6 +61,11 @@ const ManageAgreements: React.FC = () => {
             dataIndex: 'used_by',
             sorter: true,
 
+        }, {
+            title: 'Belongs to',
+            dataIndex: 'organization',
+            sorter: true,
+
         }
 
 
@@ -97,7 +103,9 @@ const ManageAgreements: React.FC = () => {
     return (
         <div className='content'>
             <HomeButton />
-            <Table columns={columns} dataSource={data} />
+            <Table columns={columns} dataSource={data} style={{ width: '80%' }} scroll={{
+                x: 'max-content'
+            }} />
 
         </div>
     )

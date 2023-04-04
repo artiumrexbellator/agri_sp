@@ -141,8 +141,12 @@ function createOrgs() {
     rm -Rf organizations/peerOrganizations && rm -Rf organizations/ordererOrganizations
   fi
 
+  if [ -d "explorer/organizations/" ]; then
+    rm -r explorer/organizations/
+  fi
   # Create crypto material using cryptogen
   if [ "$CRYPTO" == "cryptogen" ]; then
+    infoln "generating crypto material via cryptogen"
     which cryptogen
     if [ "$?" -ne 0 ]; then
       fatalln "cryptogen tool not found. exiting"
@@ -168,14 +172,24 @@ function createOrgs() {
     if [ $res -ne 0 ]; then
       fatalln "Failed to generate certificates..."
     fi
+    
+    infoln "Creating broker Identities"
+
+    set -x
+    cryptogen generate --config=./broker/crypto-config.yaml --output="organizations"
+    res=$?
+    { set +x; } 2>/dev/null
+    if [ $res -ne 0 ]; then
+      fatalln "Failed to generate certificates..."
+    fi
 
     infoln "Creating Orderer Org Identities"
 
     set -x
     cryptogen generate --config=./ordrer/crypto-config.yaml --output="organizations"
     
-    mkdir explorer/organizations/
-    cp -r organizations/peerOrganizations explorer/organizations/peerOrganizations && cp -r organizations/ordererOrganizations explorer/organizations 
+    #mkdir explorer/organizations/
+    #cp -r organizations/peerOrganizations explorer/organizations/peerOrganizations && cp -r organizations/ordererOrganizations explorer/organizations 
 
     res=$?
     { set +x; } 2>/dev/null
@@ -209,23 +223,31 @@ function createOrgs() {
 
     createFarmer
 
+    infoln "Creating broker Identities"
+
+    createBroker
+
     infoln "Creating Orderer Org Identities"
 
     createOrderer
 
   fi
 
-  infoln "Generating CCP files for supplier and farmer"
+  infoln "Generating CCP files for supplier,farmer,broker"
   ./ccp-template/ccp-generate.sh
-  rm -r explorer/organizations/
   mkdir explorer/organizations/
   cp -r organizations/peerOrganizations explorer/organizations/peerOrganizations && cp -r organizations/ordererOrganizations explorer/organizations 
 
   #copy tlsca files to connect clients with the network
   mkdir -p ../../agri_food_UI/server/certificates/farmer
   cp organizations/peerOrganizations/farmer.com/msp/tlscacerts/tlsca.farmer.com-cert.pem ../../agri_food_UI/server/certificates/farmer
+  
+  mkdir -p ../../agri_food_UI/server/certificates/broker
+  cp organizations/peerOrganizations/broker.com/msp/tlscacerts/tlsca.broker.com-cert.pem ../../agri_food_UI/server/certificates/broker
+
   mkdir -p ../../agri_food_UI/server/certificates/supplier
   cp organizations/peerOrganizations/supplier.com/msp/tlscacerts/tlsca.supplier.com-cert.pem ../../agri_food_UI/server/certificates/supplier
+  
   mkdir -p ../../agri_food_UI/server/certificates/orderer
   cp organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem ../../agri_food_UI/server/certificates/orderer
 
@@ -373,6 +395,7 @@ function networkDown() {
     ## remove fabric ca artifacts
     ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/supplier/msp organizations/fabric-ca/supplier/tls-cert.pem organizations/fabric-ca/supplier/ca-cert.pem organizations/fabric-ca/supplier/IssuerPublicKey organizations/fabric-ca/supplier/IssuerRevocationPublicKey organizations/fabric-ca/supplier/fabric-ca-server.db'
     ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/farmer/msp organizations/fabric-ca/farmer/tls-cert.pem organizations/fabric-ca/farmer/ca-cert.pem organizations/fabric-ca/farmer/IssuerPublicKey organizations/fabric-ca/farmer/IssuerRevocationPublicKey organizations/fabric-ca/supplier/fabric-ca-server.db'
+    ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/broker/msp organizations/fabric-ca/broker/tls-cert.pem organizations/fabric-ca/broker/ca-cert.pem organizations/fabric-ca/broker/IssuerPublicKey organizations/fabric-ca/broker/IssuerRevocationPublicKey organizations/fabric-ca/supplier/fabric-ca-server.db'
     ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/ordererOrg/msp organizations/fabric-ca/ordererOrg/tls-cert.pem organizations/fabric-ca/ordererOrg/ca-cert.pem organizations/fabric-ca/ordererOrg/IssuerPublicKey organizations/fabric-ca/ordererOrg/IssuerRevocationPublicKey organizations/fabric-ca/ordererOrg/fabric-ca-server.db'
     ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf addOrg3/fabric-ca/org3/msp addOrg3/fabric-ca/org3/tls-cert.pem addOrg3/fabric-ca/org3/ca-cert.pem addOrg3/fabric-ca/org3/IssuerPublicKey addOrg3/fabric-ca/org3/IssuerRevocationPublicKey addOrg3/fabric-ca/org3/fabric-ca-server.db'
     # remove channel and script artifacts

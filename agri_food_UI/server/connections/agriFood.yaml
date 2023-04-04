@@ -78,6 +78,11 @@
          chaincodeQuery: true
          ledgerQuery: true
          eventSource: true
+       peer0.broker.com:
+         endorsingPeer: true
+         chaincodeQuery: true
+         ledgerQuery: true
+         eventSource: true
 
  #
  # [Required]. List of organizations for all channels. At least one organization
@@ -115,6 +120,18 @@
        - peer0.farmer.com
      certificateAuthorities:
        - ca-farmer
+   Broker:
+     #
+     # [Required]. The MSPID used to identify DigiBank
+     #
+     mspid: BrokerMSP
+     #
+     # [Required]. The DigiBank peers
+     #
+     peers:
+       - peer0.broker.com
+     certificateAuthorities:
+       - ca-broker
  #
  # [Optional]. Orderer physical information, by orderer name
  #
@@ -157,16 +174,20 @@
      tlsCACerts:
       path: server/certificates/supplier/tlsca.supplier.com-cert.pem
    #
-   # [Optional]. Other MagnetoCorp peers
-   #
    peer0.farmer.com:
-     url: grpcs://localhost:9051
+     url: grpcs://localhost:8051
      grpcOptions:
        ssl-target-name-override: peer0.farmer.com
        request-timeout: 120001
      tlsCACerts:
       path: server/certificates/farmer/tlsca.farmer.com-cert.pem
-
+   peer0.broker.com:
+     url: grpcs://localhost:6051
+     grpcOptions:
+       ssl-target-name-override: peer0.broker.com
+       request-timeout: 120001
+     tlsCACerts:
+      path: server/certificates/broker/tlsca.broker.com-cert.pem
  # [Optional]. Fabric-CA Certificate Authority physical information, by name.
  # This information can be used to (e.g.) enroll new users. Communication is via
  # REST, hence options relate to HTTP rather than gRPC.

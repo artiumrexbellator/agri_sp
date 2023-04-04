@@ -50,12 +50,24 @@ type AssetsWallet struct {
 
 // this asset contains agreements to change on assets
 type Agreement struct {
-	Id          string `json:"id"`
-	Owner       string `json:"owner"`
-	AssetId     string `json:"asset_id"`
-	CreatedDate string `json:"created_date"`
-	UsedBy      string `json:"used_by"`
-	Consumed    bool   `json:"consumed"`
+	Id           string `json:"id"`
+	Owner        string `json:"owner"`
+	AssetId      string `json:"asset_id"`
+	CreatedDate  string `json:"created_date"`
+	UsedBy       string `json:"used_by"`
+	Organization string `json:"organization"`
+	Consumed     bool   `json:"consumed"`
+}
+
+//this is asset is contains a fraction of the commodity
+
+type CommodityFraction struct {
+	Id          string  `json:"id"`
+	Owner       string  `json:"owner"`
+	CommodityId string  `json:"commodity_id"`
+	AgreementId string  `json:"agreement_id"`
+	Quantity    float64 `json:"quantity"`
+	CreatedDate string  `json:"created_date"`
 }
 
 func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterface, id string, origin string, materialType string) error {
@@ -239,12 +251,13 @@ func (s *SmartContract) CreateAgreement(ctx contractapi.TransactionContextInterf
 
 	//create the agreement
 	agreement := &Agreement{
-		Id:          agreementId,
-		Owner:       owner,
-		AssetId:     assetId,
-		CreatedDate: today,
-		UsedBy:      "",
-		Consumed:    false,
+		Id:           agreementId,
+		Owner:        owner,
+		AssetId:      assetId,
+		CreatedDate:  today,
+		UsedBy:       "",
+		Organization: "",
+		Consumed:     false,
 	}
 
 	agreementJSON, err := json.Marshal(agreement)
@@ -264,6 +277,40 @@ func (s *SmartContract) CreateAgreement(ctx contractapi.TransactionContextInterf
 	return true, nil
 }
 
+// the function is called to update agreement
+func (s *SmartContract) UpdateAgreement(ctx contractapi.TransactionContextInterface, agreementId string, assetId string, owner string, creatorOrg string) (bool, error) {
+	//get the agreement and verify that it is not consumed and its for the right product
+	agreementJSON, err := ctx.GetStub().GetState(agreementId)
+	if err != nil {
+		return false, fmt.Errorf("failed to get agreement: %v", err)
+	}
+	var agreement Agreement
+	err = json.Unmarshal(agreementJSON, &agreement)
+	if err != nil {
+		return false, fmt.Errorf("failed to unmarshal agreement JSON: %v", err)
+	}
+	if agreement.AssetId != assetId {
+		return false, fmt.Errorf("this agreement doesn't belong to the provided commodity")
+	} else if agreement.Consumed {
+		return false, fmt.Errorf("this agreement is already consumed")
+	}
+	//set agreement as used
+	agreement.UsedBy = owner
+	agreement.Consumed = true
+	agreement.Organization = creatorOrg
+	agreementJS, err := json.Marshal(agreement)
+	if err != nil {
+		return false, err
+	}
+	//save back the agreement with new changes
+	err = ctx.GetStub().PutState(agreement.Id, agreementJS)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 // push supplies to a commodity
 func (s *SmartContract) PushSuppliesToCommodity(ctx contractapi.TransactionContextInterface, agreementId string, commodityId string, supplyId string, supplyType string, quantity int) (bool, error) {
 	//get the owner first
@@ -278,22 +325,6 @@ func (s *SmartContract) PushSuppliesToCommodity(ctx contractapi.TransactionConte
 	}
 	if creatorOrg != "SupplierMSP" {
 		return false, fmt.Errorf("only members of SupplierMSP can push supplies to commodities")
-	}
-	//get the agreement and verify that it is not consumed and its for the right product
-	agreementJSON, err := ctx.GetStub().GetState(agreementId)
-	if err != nil {
-		return false, fmt.Errorf("failed to get agreement: %v", err)
-	}
-
-	var agreement Agreement
-	err = json.Unmarshal(agreementJSON, &agreement)
-	if err != nil {
-		return false, fmt.Errorf("failed to unmarshal agreement JSON: %v", err)
-	}
-	if agreement.AssetId != commodityId {
-		return false, fmt.Errorf("this agreement doesn't belong to the provided commodity")
-	} else if agreement.Consumed {
-		return false, fmt.Errorf("this agreement is already consumed")
 	}
 
 	//get the commodity to append the supplies
@@ -325,26 +356,70 @@ func (s *SmartContract) PushSuppliesToCommodity(ctx contractapi.TransactionConte
 	if err != nil {
 		return false, err
 	}
+	//verify then the agreement before pushing changes
+	agreementResult, err := s.UpdateAgreement(ctx, agreementId, commodityId, owner, creatorOrg)
+	if !agreementResult {
+		return false, err
+	}
 	//save back the commodity with new supply
 	err = ctx.GetStub().PutState(commodity.Id, commodityJS)
 	if err != nil {
 		return false, err
 	}
-	//add the commodity to the wallet of owner
+	//add the commodity to the wallet of supplier
 	status, err := s.AppendToWallet(ctx, owner, commodityId, "supply~commodity")
 	if !status {
 		return false, err
 	}
-	//set agreement as used
-	agreement.UsedBy = owner
-	agreement.Consumed = true
-	agreementJS, err := json.Marshal(agreement)
+
+	return true, nil
+}
+
+// createCommodity fraction
+func (s *SmartContract) CreateCommodityFraction(ctx contractapi.TransactionContextInterface, id string, commodityId string, agreementId string, quantity float64) (bool, error) {
+	//get the owner first
+	owner, err := cid.GetID(ctx.GetStub())
+	if err != nil {
+		return false, fmt.Errorf("ownerId error: %v", err)
+	}
+	// Check invoking user identity
+	creatorOrg, err := cid.GetMSPID(ctx.GetStub())
+	if err != nil {
+		return false, fmt.Errorf("failed to get MSP ID: %v", err)
+	}
+	if creatorOrg != "BrokerMSP" {
+		return false, fmt.Errorf("only members of BrokerMSP can create commodity fractions")
+	}
+
+	//create the commodity fraction
+	var today = time.Now().UTC().Format("2006-01-02")
+
+	commodityFraction := &CommodityFraction{
+		Id:          id,
+		Owner:       owner,
+		CommodityId: commodityId,
+		Quantity:    quantity,
+		AgreementId: agreementId,
+		CreatedDate: today,
+	}
+	//to json
+	commodityFractionJSON, err := json.Marshal(commodityFraction)
 	if err != nil {
 		return false, err
 	}
-	//save back the agreement with new changes
-	err = ctx.GetStub().PutState(agreement.Id, agreementJS)
+	//verify then the agreement before pushing changes
+	agreementResult, err := s.UpdateAgreement(ctx, agreementId, commodityId, owner, creatorOrg)
+	if !agreementResult {
+		return false, err
+	}
+	//save the commodity fraction in world state
+	err = ctx.GetStub().PutState(id, commodityFractionJSON)
 	if err != nil {
+		return false, err
+	}
+	//add the commodity to the wallet of broker
+	status, err := s.AppendToWallet(ctx, owner, commodityId, "commodityFraction")
+	if !status {
 		return false, err
 	}
 

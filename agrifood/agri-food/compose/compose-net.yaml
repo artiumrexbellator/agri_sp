@@ -9,6 +9,7 @@ volumes:
   orderer.example.com:
   peer0.supplier.com:
   peer0.farmer.com:
+  peer0.broker.com:
 
 networks:
   test:
@@ -113,12 +114,12 @@ services:
       - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
       # Peer specific variables
       - CORE_PEER_ID=peer0.farmer.com
-      - CORE_PEER_ADDRESS=peer0.farmer.com:9051
-      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
-      - CORE_PEER_CHAINCODEADDRESS=peer0.farmer.com:9052
-      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.farmer.com:9051
-      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.farmer.com:9051
+      - CORE_PEER_ADDRESS=peer0.farmer.com:8051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.farmer.com:8052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.farmer.com:8051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.farmer.com:8051
       - CORE_PEER_LOCALMSPID=FarmerMSP
       - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp      
       - CORE_OPERATIONS_LISTENADDRESS=peer0.farmer.com:9445
@@ -131,8 +132,47 @@ services:
     working_dir: /root
     command: peer node start
     ports:
-      - 9051:9051
+      - 8051:8051
       - 9445:9445
+    networks:
+      - test
+
+  peer0.broker.com:
+    container_name: peer0.broker.com
+    image: hyperledger/fabric-peer:latest
+    labels:
+      service: hyperledger-fabric
+    environment:
+      - FABRIC_CFG_PATH=/etc/hyperledger/peercfg
+      #- FABRIC_LOGGING_SPEC=INFO
+      - FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_PROFILE_ENABLED=false
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      # Peer specific variables
+      - CORE_PEER_ID=peer0.broker.com
+      - CORE_PEER_ADDRESS=peer0.broker.com:6051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:6051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.broker.com:6052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:6052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.broker.com:6051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.broker.com:6051
+      - CORE_PEER_LOCALMSPID=BrokerMSP
+      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/msp      
+      - CORE_OPERATIONS_LISTENADDRESS=peer0.broker.com:9446
+      - CORE_METRICS_PROVIDER=prometheus
+      - CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG={"peername":"peer0broker"}
+      - CORE_CHAINCODE_EXECUTETIMEOUT=300s
+    volumes:
+        - ../organizations/peerOrganizations/broker.com/peers/peer0.broker.com:/etc/hyperledger/fabric
+        - peer0.broker.com:/var/hyperledger/production
+    working_dir: /root
+    command: peer node start
+    ports:
+      - 6051:6051
+      - 9446:9446
     networks:
       - test
 

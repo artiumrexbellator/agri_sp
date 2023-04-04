@@ -96,11 +96,13 @@ infoln "Joining supplier peer to the channel..."
 joinChannel "supplier"
 infoln "Joining farmer peer to the channel..."
 joinChannel "farmer"
-
+infoln "Joining broker peer to the channel..."
+joinChannel "broker"
 ## Set the anchor peers for each org in the channel
 infoln "Setting anchor peer for supplier..."
 setAnchorPeer "supplier"
 infoln "Setting anchor peer for farmer..."
 setAnchorPeer "farmer"
-
+infoln "Setting anchor peer for broker..."
+setAnchorPeer "broker"
 successln "Channel '$CHANNEL_NAME' joined"

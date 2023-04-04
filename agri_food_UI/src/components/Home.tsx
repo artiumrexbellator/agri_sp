@@ -12,6 +12,7 @@ import axios from 'axios';
 import { server } from '../axios/axios';
 import ManageAgreements from './ManageAgreements';
 import PushSupplies from './PushSupplies';
+import CommodityFraction from './broker/CommodityFraction';
 const titleStyle: React.CSSProperties = {
     color: 'white',
     marginTop: '10px'
@@ -51,6 +52,11 @@ const Home: React.FC = () => {
             title: 'add supplies to a commodity',
             description: 'you can add supplies to a specific commodity by providing necessary and valid identities',
             link: 'createSupply',
+        }, {
+            key: 5,
+            title: 'Create commodity fraction',
+            description: 'to create a commodity fraction you should provide necessary and valid identities',
+            link: 'createCommodityFraction',
         }
     ];
 
@@ -77,7 +83,10 @@ const Home: React.FC = () => {
                         <Route path="/manageCommodity" element={token ? <ManageCommodity /> : <Navigate to="/login" />
                         } />
                         <Route path="/manageAgreements" element={token ? <ManageAgreements /> : <Navigate to="/login" />
-                        } /><Route path="/createSupply" element={token ? <PushSupplies /> : <Navigate to="/login" />
+                        } />
+                        <Route path="/createSupply" element={token ? <PushSupplies /> : <Navigate to="/login" />
+                        } />
+                        <Route path="/createCommodityFraction" element={token ? <CommodityFraction /> : <Navigate to="/login" />
                         } />
                     </Routes>
                 </Router>

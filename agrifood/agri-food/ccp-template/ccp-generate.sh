@@ -36,10 +36,19 @@ echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrga
 echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/supplier.com/connection-supplier.yaml
 
 ORG=farmer
-P0PORT=9051
+P0PORT=8051
 CAPORT=8054
 PEERPEM=organizations/peerOrganizations/farmer.com/tlsca/tlsca.farmer.com-cert.pem
 CAPEM=organizations/peerOrganizations/farmer.com/ca/ca.farmer.com-cert.pem
 
 echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/farmer.com/connection-farmer.json
 echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/farmer.com/connection-farmer.yaml
+
+ORG=broker
+P0PORT=6051
+CAPORT=6054
+PEERPEM=organizations/peerOrganizations/broker.com/tlsca/tlsca.broker.com-cert.pem
+CAPEM=organizations/peerOrganizations/broker.com/ca/ca.broker.com-cert.pem
+
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/broker.com/connection-broker.json
+echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/broker.com/connection-broker.yaml
