@@ -26,7 +26,7 @@ const validateMessages = {
 const CommodityFraction: React.FC = () => {
     const [commodityFraction, setCommodityFraction] = useState<CommodityFraction>({ id: uuidv4(), quantity: 0, commodity: '', agreement: '', })
     const quantityHandler = (e: any) => {
-        const cf: CommodityFraction = { ...commodityFraction, quantity: Number(e.target.value) }
+        const cf: CommodityFraction = { ...commodityFraction, quantity: Number(e) }
         setCommodityFraction(cf)
     }
     const commodityHandler = (e: React.ChangeEvent<HTMLInputElement>) => {

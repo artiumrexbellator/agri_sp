@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Typography } from 'antd';
 import MenuContainer from './MenuContainer';
-import ManageCommodity from './ManageCommodity';
+import ManageCommodity from './farmer/ManageCommodity';
 import Connect from './connect';
 const { Header, Content, Footer } = Layout;
 const { Title } = Typography;
 import { Route, Routes } from 'react-router-dom';
 import { BrowserRouter as Router, Navigate } from 'react-router-dom';
-import CreateCommodity from './CreateCommodity';
+import CreateCommodity from './farmer/CreateCommodity';
 import axios from 'axios';
 import { server } from '../axios/axios';
 import ManageAgreements from './ManageAgreements';
-import PushSupplies from './PushSupplies';
+import PushSupplies from './supplier/PushSupplies';
 import CommodityFraction from './broker/CommodityFraction';
+import ManageFractions from './broker/ManageFractions';
 const titleStyle: React.CSSProperties = {
     color: 'white',
     marginTop: '10px'
@@ -57,6 +58,11 @@ const Home: React.FC = () => {
             title: 'Create commodity fraction',
             description: 'to create a commodity fraction you should provide necessary and valid identities',
             link: 'createCommodityFraction',
+        }, {
+            key: 6,
+            title: 'Manage commodity fraction',
+            description: 'you can view for each of your own commodity fractions,the fraction and its associated commodity',
+            link: 'manageCommodityFraction',
         }
     ];
 
@@ -87,6 +93,8 @@ const Home: React.FC = () => {
                         <Route path="/createSupply" element={token ? <PushSupplies /> : <Navigate to="/login" />
                         } />
                         <Route path="/createCommodityFraction" element={token ? <CommodityFraction /> : <Navigate to="/login" />
+                        } />
+                        <Route path="/manageCommodityFraction" element={token ? <ManageFractions /> : <Navigate to="/login" />
                         } />
                     </Routes>
                 </Router>

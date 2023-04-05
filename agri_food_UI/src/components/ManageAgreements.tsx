@@ -25,8 +25,6 @@ interface TableParams {
 
 
 const ManageAgreements: React.FC = () => {
-
-
     const [data, setData] = useState<DataType[]>();
     const [loading, setLoading] = useState(false);
     const [tableParams, setTableParams] = useState<TableParams>({
@@ -35,15 +33,22 @@ const ManageAgreements: React.FC = () => {
             pageSize: 10,
         },
     });
+    const textCopy = (text: string) => {
+        navigator.clipboard.writeText(text)
+        console.log(text)
+        message.success("text copied to clipboard")
+    }
     const columns: ColumnsType<DataType> = [
         {
             title: 'agreement',
             dataIndex: 'id',
+            render: (text) => (<span onClick={() => { textCopy(String(text)) }}>{text}</span>)
         },
         {
             title: 'asset',
             dataIndex: 'asset_id',
             sorter: true,
+            render: (text) => (<span onClick={() => { textCopy(String(text)) }}>{text}</span>)
         },
         {
             title: 'Consumed',
@@ -83,8 +88,6 @@ const ManageAgreements: React.FC = () => {
                         pagination: {
                             ...tableParams.pagination,
                             total: 200,
-                            // 200 is mock data, you should read it from server
-                            // total: data.totalCount,
                         },
                     });
                 } else {

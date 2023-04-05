@@ -1,9 +1,9 @@
-import HomeButton from './HomeButton';
+import HomeButton from '../HomeButton';
 import React, { useState } from 'react';
 import { Button, Form, Input, InputNumber, message } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
-import { server } from "../axios/axios"
+import { server } from "../../axios/axios"
 const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
@@ -31,7 +31,7 @@ const PushSupplies: React.FC = () => {
         setSupply(sup)
     }
     const quantityHandler = (e: any) => {
-        const sup: Supply = { ...supply, quantity: Number(e.target.value) }
+        const sup: Supply = { ...supply, quantity: Number(e) }
         setSupply(sup)
     }
     const commodityHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,17 +43,17 @@ const PushSupplies: React.FC = () => {
         setSupply(sup)
     }
     const submit = () => {
-        try {
-            axios.post(`${server}/api/create/supply`, supply, { withCredentials: true }).then(response => {
-                if (response.status == 200) {
-                    message.success({ content: `supply is added successfully to the commodity ${supply.commodity}` })
-                } else {
-                    message.error({ content: 'internal error' })
-                }
-            });
-        } catch (err) {
-            console.log(err);
-        }
+
+        axios.post(`${server}/api/create/supply`, supply, { withCredentials: true }).then(response => {
+            if (response.status == 200) {
+                message.success({ content: `supply is added successfully to the commodity ${supply.commodity}` })
+            } else {
+                message.error({ content: 'internal error' })
+            }
+        }).catch((err) => {
+            message.error({ content: 'internal error verify identifiers' })
+        });
+
     };
 
     return (

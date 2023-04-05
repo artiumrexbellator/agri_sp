@@ -70,6 +70,13 @@ type CommodityFraction struct {
 	CreatedDate string  `json:"created_date"`
 }
 
+//this struct contains for each commodity fraction,both the fraction and the commodity
+
+type CommodityAndFraction struct {
+	Commodity Commodity
+	Fraction  CommodityFraction
+}
+
 func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterface, id string, origin string, materialType string) error {
 	// Check invoking user identity
 	creatorOrg, err := cid.GetMSPID(ctx.GetStub())
@@ -418,7 +425,7 @@ func (s *SmartContract) CreateCommodityFraction(ctx contractapi.TransactionConte
 		return false, err
 	}
 	//add the commodity to the wallet of broker
-	status, err := s.AppendToWallet(ctx, owner, commodityId, "commodityFraction")
+	status, err := s.AppendToWallet(ctx, owner, id, "commodityFraction")
 	if !status {
 		return false, err
 	}
@@ -467,6 +474,64 @@ func (s *SmartContract) GetFarmerCommodities(ctx contractapi.TransactionContextI
 	}
 
 	return commodities, nil
+}
+
+//get the commodity fractions
+
+// GetFarmerCommodities returns the commodities owned by the invoking farmer.
+func (s *SmartContract) GetBrokerFractions(ctx contractapi.TransactionContextInterface) ([]*CommodityAndFraction, error) {
+	var commodityAndFraction []*CommodityAndFraction
+
+	// Get the owner ID
+	ownerID, err := cid.GetID(ctx.GetStub())
+	if err != nil {
+		return nil, fmt.Errorf("failed to get owner ID: %v", err)
+	}
+
+	// Get the owner's wallet
+	walletJSON, err := ctx.GetStub().GetState(ownerID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get owner wallet: %v", err)
+	}
+
+	var wallet AssetsWallet
+	err = json.Unmarshal(walletJSON, &wallet)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal wallet JSON: %v", err)
+	}
+
+	// Get the commodities owned by the owner
+	for _, asset := range wallet.Assets {
+		if asset.Type == "commodityFraction" {
+			commodityFcJSON, err := ctx.GetStub().GetState(asset.Id)
+			if err != nil {
+				return nil, fmt.Errorf("failed to get commodity fraction with ID %s: %v", asset.Id, err)
+			}
+			//get the commodity fraction
+			var commodityFc CommodityFraction
+			var commodity Commodity
+			err = json.Unmarshal(commodityFcJSON, &commodityFc)
+			if err != nil {
+				return nil, fmt.Errorf("failed to unmarshal commodity fraction JSON: %v", err)
+			}
+			//get the commodity
+			commodityJSON, err := ctx.GetStub().GetState(commodityFc.CommodityId)
+			if err != nil {
+				return nil, fmt.Errorf("failed to get commodity with ID %s: %v", asset.Id, err)
+			}
+			err = json.Unmarshal(commodityJSON, &commodity)
+			if err != nil {
+				return nil, fmt.Errorf("failed to unmarshal commodity fraction JSON: %v", err)
+			}
+			//the struct to hold both commodity fraction and commodity
+			var commodityFC CommodityAndFraction
+			commodityFC.Commodity = commodity
+			commodityFC.Fraction = commodityFc
+			commodityAndFraction = append(commodityAndFraction, &commodityFC)
+		}
+	}
+
+	return commodityAndFraction, nil
 }
 
 // GetFarmerCommodities returns the commodities owned by the invoking farmer.

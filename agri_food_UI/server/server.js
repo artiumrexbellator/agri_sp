@@ -2,7 +2,6 @@ import express from "express";
 import { Wallets, Gateway } from "fabric-network";
 import * as yaml from "js-yaml";
 import { readFileSync, unlink } from "fs";
-import path from "path";
 import jwt from "jsonwebtoken";
 import { expressjwt as authMiddleware } from "express-jwt";
 import multer from "multer";
@@ -234,6 +233,28 @@ app.get("/api/get/commodity", async (req, res) => {
     gateway.disconnect();
   }
 });
+//api to get commodities of the authentified client
+app.get("/api/get/commodityFraction", async (req, res) => {
+  const gateway = await getGateway(req.cookies.token);
+  try {
+    // Obtain the smart contract with which our application wants to interact
+    const network = await gateway.getNetwork(channelName);
+    const contract = network.getContract(chaincodeId);
+
+    // Submit transactions for the smart contract
+    const submitResult = await contract.evaluateTransaction(
+      "GetBrokerFractions"
+    );
+    const resultJSON = JSON.parse(submitResult.toString("utf8"));
+    res.status(200).json(resultJSON);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("error invoking chaincode");
+  } finally {
+    // Disconnect from the gateway peer when all work for this client identity is complete
+    gateway.disconnect();
+  }
+});
 //api to get agreements of the authentified client
 app.get("/api/get/agreements", async (req, res) => {
   const gateway = await getGateway(req.cookies.token);
@@ -296,9 +317,9 @@ app.post("/api/create/supply", async (req, res) => {
     );
     const resultJSON = JSON.parse(result.toString("utf8"));
     if (resultJSON) res.sendStatus(200);
-    else res.sendStatus(500);
+    else res.status(500).send("error creating the supply");
   } catch (error) {
-    res.sendStatus(500);
+    res.status(500).send(error.message);
   } finally {
     // Disconnect from the gateway peer when all work for this client identity is complete
     gateway.disconnect();

@@ -1,10 +1,10 @@
-import HomeButton from './HomeButton';
+import HomeButton from '../HomeButton';
 import React, { useState } from 'react';
 import { Button, Form, Input, message } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import { QRCode } from 'antd';
 import axios from 'axios';
-import { server } from "../axios/axios"
+import { server } from "../../axios/axios"
 const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },

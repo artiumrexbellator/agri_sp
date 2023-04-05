@@ -1,4 +1,4 @@
-import HomeButton from "./HomeButton";
+import HomeButton from "../HomeButton";
 import React, { useState, useEffect } from 'react';
 import { Button, Space, Table, Popconfirm, message, Modal } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
@@ -6,7 +6,7 @@ import type { FilterValue, SorterResult } from 'antd/es/table/interface';
 import axios from "axios";
 import type { TableRowSelection } from 'antd/es/table/interface';
 import { v4 as uuidv4 } from 'uuid';
-import { server } from "../axios/axios";
+import { server } from "../../axios/axios";
 import { render } from "react-dom";
 
 interface Supply {
