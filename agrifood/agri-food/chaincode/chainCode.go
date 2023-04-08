@@ -70,6 +70,17 @@ type CommodityFraction struct {
 	CreatedDate string  `json:"created_date"`
 }
 
+// this struct represents the asset of lot unit which contains the commodity fraction and the informations about it during manufacturing
+type LotUnit struct {
+	Id                  string  `json:"id"`
+	Owner               string  `json:"owner"`
+	CommodityFractionId string  `json:"commodity_fraction_id"`
+	AgreementId         string  `json:"agreement_id"`
+	LotNumber           string  `json:"lot_number"`
+	Quantity            float64 `json:"quantity"`
+	CreatedDate         string  `json:"created_date"`
+}
+
 //this struct contains for each commodity fraction,both the fraction and the commodity
 
 type CommodityAndFraction struct {
@@ -433,6 +444,58 @@ func (s *SmartContract) CreateCommodityFraction(ctx contractapi.TransactionConte
 	return true, nil
 }
 
+// create lot unit
+func (s *SmartContract) CreateLotUnit(ctx contractapi.TransactionContextInterface, id string, commodityFractionId string, agreementId string, lotNumber string, quantity float64) (bool, error) {
+	//get the owner first
+	owner, err := cid.GetID(ctx.GetStub())
+	if err != nil {
+		return false, fmt.Errorf("ownerId error: %v", err)
+	}
+	// Check invoking user identity
+	creatorOrg, err := cid.GetMSPID(ctx.GetStub())
+	if err != nil {
+		return false, fmt.Errorf("failed to get MSP ID: %v", err)
+	}
+	if creatorOrg != "FactoryMSP" {
+		return false, fmt.Errorf("only members of FactoryMSP can create lot units")
+	}
+
+	//create the commodity fraction
+	var today = time.Now().UTC().Format("2006-01-02")
+
+	lotUnit := &LotUnit{
+		Id:                  id,
+		Owner:               owner,
+		CommodityFractionId: commodityFractionId,
+		Quantity:            quantity,
+		AgreementId:         agreementId,
+		LotNumber:           lotNumber,
+		CreatedDate:         today,
+	}
+	//to json
+	lotUnitJSON, err := json.Marshal(lotUnit)
+	if err != nil {
+		return false, err
+	}
+	//verify then the agreement before pushing changes
+	agreementResult, err := s.UpdateAgreement(ctx, agreementId, commodityFractionId, owner, creatorOrg)
+	if !agreementResult {
+		return false, err
+	}
+	//save the commodity fraction in world state
+	err = ctx.GetStub().PutState(id, lotUnitJSON)
+	if err != nil {
+		return false, err
+	}
+	//add the commodity to the wallet of broker
+	status, err := s.AppendToWallet(ctx, owner, id, "lotUnit")
+	if !status {
+		return false, err
+	}
+
+	return true, nil
+}
+
 // GetFarmerCommodities returns the commodities owned by the invoking farmer.
 func (s *SmartContract) GetFarmerCommodities(ctx contractapi.TransactionContextInterface) ([]*Commodity, error) {
 	var commodities []*Commodity
@@ -478,7 +541,7 @@ func (s *SmartContract) GetFarmerCommodities(ctx contractapi.TransactionContextI
 
 //get the commodity fractions
 
-// GetFarmerCommodities returns the commodities owned by the invoking farmer.
+// GetBrokerFractions returns the fractions of commodities owned by the invoking broker dealer.
 func (s *SmartContract) GetBrokerFractions(ctx contractapi.TransactionContextInterface) ([]*CommodityAndFraction, error) {
 	var commodityAndFraction []*CommodityAndFraction
 

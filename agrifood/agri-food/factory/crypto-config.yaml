@@ -1,0 +1,10 @@
+PeerOrgs:
+  - Name: Factory
+    Domain: factory.com
+    EnableNodeOUs: true
+    Template:
+      Count: 1
+      SANS:
+        - localhost
+    Users:
+      Count: 1

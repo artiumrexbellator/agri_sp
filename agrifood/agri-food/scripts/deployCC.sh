@@ -147,11 +147,14 @@ infoln "Install chaincode on peer0.farmer..."
 installChaincode "farmer"
 infoln "Install chaincode on peer0.broker..."
 installChaincode "broker"
+infoln "Install chaincode on peer0.factory..."
+installChaincode "factory"
 ## query whether the chaincode is installed
 
 queryInstalled "supplier"
 queryInstalled "farmer"
 queryInstalled "broker"
+queryInstalled "factory"
 
 ## approve the definition for supplier
 approveForMyOrg "supplier"
@@ -165,6 +168,7 @@ approveForMyOrg "supplier"
 ## now approve also for farmer
 approveForMyOrg "farmer"
 approveForMyOrg "broker"
+approveForMyOrg "factory"
 
 ## check whether the chaincode definition is ready to be committed
 ## expect them both to have approved
@@ -173,12 +177,13 @@ checkCommitReadiness "supplier" "\"SupplierMSP\": true" "\"FarmerMSP\": true"
 #checkCommitReadiness "farmer" "\"SupplierMSP\": true" "\"FarmerMSP\": true"
 
 ## now that we know for sure both orgs have approved, commit the definition
-commitChaincodeDefinition "supplier" "farmer" "broker"
+commitChaincodeDefinition "supplier" "farmer" "broker" "factory"
 
 ## query on both orgs to see that the definition committed successfully
 queryCommitted "supplier"
 queryCommitted "farmer"
 queryCommitted "broker"
+queryCommitted "factory"
 
 ## Invoke the chaincode - this does require that the chaincode have the 'initLedger'
 ## method defined

@@ -26,6 +26,9 @@ createAnchorPeerUpdate() {
   elif [ $ORG == "broker" ]; then
     HOST="peer0.broker.com"
     PORT=6051
+  elif [ $ORG == "factory" ]; then
+    HOST="peer0.factory.com"
+    PORT=5051
   #elif [ $ORG -eq 3 ]; then
    # HOST="peer0.org3.example.com"
    # PORT=11051

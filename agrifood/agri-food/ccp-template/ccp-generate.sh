@@ -52,3 +52,12 @@ CAPEM=organizations/peerOrganizations/broker.com/ca/ca.broker.com-cert.pem
 
 echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/broker.com/connection-broker.json
 echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/broker.com/connection-broker.yaml
+
+ORG=factory
+P0PORT=5051
+CAPORT=5054
+PEERPEM=organizations/peerOrganizations/factory.com/tlsca/tlsca.factory.com-cert.pem
+CAPEM=organizations/peerOrganizations/factory.com/ca/ca.factory.com-cert.pem
+
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/factory.com/connection-factory.json
+echo "$(yaml_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/factory.com/connection-factory.yaml

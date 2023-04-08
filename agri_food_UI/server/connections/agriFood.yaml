@@ -78,7 +78,14 @@
          chaincodeQuery: true
          ledgerQuery: true
          eventSource: true
+
        peer0.broker.com:
+         endorsingPeer: true
+         chaincodeQuery: true
+         ledgerQuery: true
+         eventSource: true
+
+       peer0.factory.com:
          endorsingPeer: true
          chaincodeQuery: true
          ledgerQuery: true
@@ -132,6 +139,19 @@
        - peer0.broker.com
      certificateAuthorities:
        - ca-broker
+
+   Factory:
+     #
+     # [Required]. The MSPID used to identify DigiBank
+     #
+     mspid: FactoryMSP
+     #
+     # [Required]. The DigiBank peers
+     #
+     peers:
+       - peer0.factory.com
+     certificateAuthorities:
+       - ca-factory
  #
  # [Optional]. Orderer physical information, by orderer name
  #
@@ -181,6 +201,7 @@
        request-timeout: 120001
      tlsCACerts:
       path: server/certificates/farmer/tlsca.farmer.com-cert.pem
+
    peer0.broker.com:
      url: grpcs://localhost:6051
      grpcOptions:
@@ -188,6 +209,14 @@
        request-timeout: 120001
      tlsCACerts:
       path: server/certificates/broker/tlsca.broker.com-cert.pem
+
+   peer0.factory.com:
+     url: grpcs://localhost:5051
+     grpcOptions:
+       ssl-target-name-override: peer0.factory.com
+       request-timeout: 120001
+     tlsCACerts:
+      path: server/certificates/factory/tlsca.factory.com-cert.pem
  # [Optional]. Fabric-CA Certificate Authority physical information, by name.
  # This information can be used to (e.g.) enroll new users. Communication is via
  # REST, hence options relate to HTTP rather than gRPC.
