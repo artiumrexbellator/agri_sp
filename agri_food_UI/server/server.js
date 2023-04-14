@@ -57,7 +57,7 @@ app.get("/api/cookie", (req, res) => {
 app.post("/upload/cert", upload.single("cert"), (req, res) => {
   const filePath = req.file.path;
 
-  // Schedule file deletion after 3 minutes (180,000 ms)
+  // Schedule file deletion after 80 secs (80,000 ms)
   setTimeout(() => {
     unlink(filePath, (err) => {
       if (err) {
@@ -66,14 +66,14 @@ app.post("/upload/cert", upload.single("cert"), (req, res) => {
         console.log(`Deleted file ${filePath}`);
       }
     });
-  }, 180000);
+  }, 80000);
   res.json({ filename: req.file.filename });
 });
 //function to upload certs
 app.post("/upload/key", upload.single("key"), (req, res) => {
   const filePath = req.file.path;
 
-  // Schedule file deletion after 3 minutes 180,000 ms)
+  // Schedule file deletion after 80 secs 80,000 ms)
   setTimeout(() => {
     unlink(filePath, (err) => {
       if (err) {
@@ -82,7 +82,7 @@ app.post("/upload/key", upload.single("key"), (req, res) => {
         console.log(`Deleted file ${filePath}`);
       }
     });
-  }, 180000);
+  }, 80000);
   res.json({ filename: req.file.filename });
 });
 // Sign a new JWT token for the user

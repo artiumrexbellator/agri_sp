@@ -7,7 +7,7 @@ version: '3.7'
 services:
   peer0.supplier.com:
     container_name: peer0.supplier.com
-    image: hyperledger/fabric-peer:latest
+    image: hyperledger/fabric-peer:2.4
     labels:
       service: hyperledger-fabric
     environment:
@@ -20,7 +20,7 @@ services:
 
   peer0.farmer.com:
     container_name: peer0.farmer.com
-    image: hyperledger/fabric-peer:latest
+    image: hyperledger/fabric-peer:2.4
     labels:
       service: hyperledger-fabric
     environment:
@@ -33,7 +33,7 @@ services:
 
   peer0.broker.com:
     container_name: peer0.broker.com
-    image: hyperledger/fabric-peer:latest
+    image: hyperledger/fabric-peer:2.4
     labels:
       service: hyperledger-fabric
     environment:
@@ -46,7 +46,7 @@ services:
 
   peer0.factory.com:
     container_name: peer0.factory.com
-    image: hyperledger/fabric-peer:latest
+    image: hyperledger/fabric-peer:2.4
     labels:
       service: hyperledger-fabric
     environment:
@@ -58,6 +58,6 @@ services:
       - ${DOCKER_SOCK}:/host/var/run/docker.sock
   cli:
     container_name: cli
-    image: hyperledger/fabric-tools:latest
+    image: hyperledger/fabric-tools:2.4
     volumes:
       - ./docker/peercfg:/etc/hyperledger/peercfg

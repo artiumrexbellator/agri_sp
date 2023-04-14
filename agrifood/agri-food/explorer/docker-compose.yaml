@@ -13,7 +13,7 @@ networks:
 services:
 
   explorerdb.mynetwork.com:
-    image: hyperledger/explorer-db:latest
+    image: hyperledger/explorer-db:2.4
     container_name: explorerdb.mynetwork.com
     hostname: explorerdb.mynetwork.com
     environment:
@@ -31,7 +31,7 @@ services:
       - mynetwork.com
 
   explorer.mynetwork.com:
-    image: hyperledger/explorer:latest
+    image: hyperledger/explorer:2.4
     container_name: explorer.mynetwork.com
     hostname: explorer.mynetwork.com
     environment:

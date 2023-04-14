@@ -1,0 +1,14 @@
+test:
+  workers:
+    number: 5
+  rounds:
+    - label: Create a commodity.
+      # 5000 transactions should create around 1000 cars per worker but not guaranteed
+      # so need to set asset limits to less than 1000 for the other tests
+      txNumber: 500
+      rateControl:
+          type: fixed-load
+          opts:
+            transactionLoad: 5
+      workload:
+        module: ./benchmarks/basicSc/createCommodity.js
