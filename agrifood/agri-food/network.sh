@@ -213,44 +213,6 @@ function createOrgs() {
 
   fi
 
-  # Create crypto material using Fabric CA
-  if [ "$CRYPTO" == "Certificate Authorities" ]; then
-    infoln "Generating certificates using Fabric CA"
-    ${CONTAINER_CLI_COMPOSE} -f compose/$COMPOSE_FILE_CA -f compose/$CONTAINER_CLI/${CONTAINER_CLI}-$COMPOSE_FILE_CA up -d 2>&1
-
-    . fabric-ca/registerEnroll.sh
-
-    while :
-    do
-      if [ ! -f "organizations/fabric-ca/supplier/tls-cert.pem" ]; then
-        sleep 1
-      else
-        break
-      fi
-    done
-
-    infoln "Creating supplier Identities"
-
-    createSupplier
-
-    infoln "Creating farmer Identities"
-
-    createFarmer
-
-    infoln "Creating broker Identities"
-
-    createBroker
-
-    infoln "Creating factory Identities"
-
-    createFactory
-
-    infoln "Creating Orderer Org Identities"
-
-    createOrderer
-
-  fi
-
   infoln "Generating CCP files for supplier,farmer,broker,factory"
   ./ccp-template/ccp-generate.sh
   mkdir explorer/organizations/

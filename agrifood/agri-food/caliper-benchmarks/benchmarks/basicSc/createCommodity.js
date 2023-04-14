@@ -44,31 +44,43 @@ class CreateCommodityWorkload extends WorkloadModuleBase {
     this.txIndex = 0;
   }
 
+  async initializeWorkloadModule(
+    workerIndex,
+    totalWorkers,
+    roundIndex,
+    roundArguments,
+    sutAdapter,
+    sutContext
+  ) {
+    await super.initializeWorkloadModule(
+      workerIndex,
+      totalWorkers,
+      roundIndex,
+      roundArguments,
+      sutAdapter,
+      sutContext
+    );
+  }
   /**
    * Assemble TXs for the round.
    * @return {Promise<TxStatus[]>}
    */
   async submitTransaction() {
     this.txIndex++;
-    let origin = colors[Math.floor(Math.random() * Origin.length)];
-    let type = makes[Math.floor(Math.random() * Type.length)];
+    let origin = Origin[Math.floor(Math.random() * Origin.length)];
+    let type = Type[Math.floor(Math.random() * Type.length)];
 
     let args = {
       contractId: "basic",
-      contractVersion: "1.0",
       contractFunction: "CreateCommodity",
+      invokerIdentity: "User1",
       contractArguments: [generateRandomId(), origin, type],
-      timeout: 30,
     };
 
     await this.sutAdapter.sendRequests(args);
   }
 }
 
-/**
- * Create a new instance of the workload module.
- * @return {WorkloadModuleInterface}
- */
 function createWorkloadModule() {
   return new CreateCommodityWorkload();
 }

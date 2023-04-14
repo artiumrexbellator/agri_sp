@@ -38,3 +38,10 @@ For detailed information about using this repo with hyperledger fabric see [Hype
 ## Extending the Documented Reports
 
 The documented reports are built automatically from the `reports` branch of this repository and subsequently hosted on the `gh-pages` branch; pull requests must be target the [`reports` branch](https://github.com/hyperledger/caliper-benchmarks/tree/reports) in order for any modifications to be built.
+
+
+npx caliper launch manager \
+    --caliper-bind-sut fabric:2.4 \
+    --caliper-workspace . \
+    --caliper-benchconfig benchmarks/basicSc/config.yaml \
+    --caliper-networkconfig networks/fabric/network.yaml
