@@ -103,11 +103,11 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 	if err != nil {
 		return fmt.Errorf("failed creating the key: %v", err)
 	}
-	*/
+
 	if err != nil {
 		return fmt.Errorf("failed to create composite key: %v", err)
 	}
-
+	*/
 	exists, err := s.AssetExists(ctx, id)
 	if err != nil {
 		return fmt.Errorf("failed to read from world state: %v", err)
@@ -121,11 +121,7 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 	if err != nil {
 		return fmt.Errorf("ownerId error: %v", err)
 	}
-	/*
-		exp_date, err := time.Parse("2006-01-02", expirationDate)
-		if err != nil {
-			return fmt.Errorf("wrong expiration date: %v", err)
-		} */
+
 	commodity := &Commodity{
 		Id:          id,
 		Owner:       owner,
@@ -149,6 +145,7 @@ func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterf
 	s.AppendToWallet(ctx, owner, id, "commodity")
 	// Changes the endorsement policy to the new owner org
 	endorsingOrgs := []string{creatorOrg}
+	//endorsingOrgs := []string{"FarmerMSP", "SupplierMSP", "BrokerMSP", "FactoryMSP"}
 	err = setAssetStateBasedEndorsement(ctx, id, endorsingOrgs)
 	if err != nil {
 		return fmt.Errorf("failed setting state based endorsement for new owner: %v", err)
@@ -171,16 +168,16 @@ func (s *SmartContract) GetAssetsWallet(ctx contractapi.TransactionContextInterf
 		return nil, fmt.Errorf("ownerId error: %v", err)
 	}
 
-	assetJSON, err := ctx.GetStub().GetState(id)
+	assetBytes, err := ctx.GetStub().GetState(id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read from world state: %v", err)
 	}
-	if assetJSON == nil {
+	if assetBytes == nil {
 		return nil, fmt.Errorf("the Assets wallet %s does not exist", id)
 	}
 
 	var asset AssetsWallet
-	err = json.Unmarshal(assetJSON, &asset)
+	err = json.Unmarshal(assetBytes, &asset)
 	if err != nil {
 		return nil, err
 	}
@@ -209,23 +206,22 @@ func (s *SmartContract) AppendToWallet(ctx contractapi.TransactionContextInterfa
 		subAsset := Asset{Id: assetId, Type: assetType}
 		asset := &AssetsWallet{
 			Id:     owner,
-			Assets: make([]Asset, 0, 2),
+			Assets: []Asset{subAsset},
 		}
-		asset.Assets = append(asset.Assets, subAsset)
-		jsonAssets, _ := json.Marshal(asset)
-		err = ctx.GetStub().PutState(owner, jsonAssets)
+		assetsBytes, _ := json.Marshal(asset)
+		err = ctx.GetStub().PutState(owner, assetsBytes)
 		if err != nil {
 			return false, err
 		}
 		return true, nil
 	}
 
-	walletJSON, err := ctx.GetStub().GetState(owner)
+	walletBytes, err := ctx.GetStub().GetState(owner)
 	if err != nil {
 		return false, err
 	}
 	var wallet AssetsWallet
-	err = json.Unmarshal(walletJSON, &wallet)
+	err = json.Unmarshal(walletBytes, &wallet)
 	if err != nil {
 		return false, err
 	}
@@ -234,11 +230,11 @@ func (s *SmartContract) AppendToWallet(ctx contractapi.TransactionContextInterfa
 	}
 	asset := Asset{Id: assetId, Type: assetType}
 	wallet.Assets = append(wallet.Assets, asset)
-	walletJSON, err = json.Marshal(wallet)
+	walletBytes, err = json.Marshal(wallet)
 	if err != nil {
 		return false, nil
 	}
-	ctx.GetStub().PutState(owner, walletJSON)
+	ctx.GetStub().PutState(owner, walletBytes)
 
 	return true, nil
 }
@@ -251,12 +247,12 @@ func (s *SmartContract) CreateAgreement(ctx contractapi.TransactionContextInterf
 		return false, fmt.Errorf("ownerId error: %v", err)
 	}
 	//get the wallet of user
-	walletJSON, err := ctx.GetStub().GetState(owner)
+	walletBytes, err := ctx.GetStub().GetState(owner)
 	if err != nil {
 		return false, fmt.Errorf("asset doesn't exist: %v", err)
 	}
 	var wallet AssetsWallet
-	err = json.Unmarshal(walletJSON, &wallet)
+	err = json.Unmarshal(walletBytes, &wallet)
 	if err != nil {
 		return false, err
 	}
@@ -298,12 +294,12 @@ func (s *SmartContract) CreateAgreement(ctx contractapi.TransactionContextInterf
 // the function is called to update agreement
 func (s *SmartContract) UpdateAgreement(ctx contractapi.TransactionContextInterface, agreementId string, assetId string, owner string, creatorOrg string) (bool, error) {
 	//get the agreement and verify that it is not consumed and its for the right product
-	agreementJSON, err := ctx.GetStub().GetState(agreementId)
+	agreementBytes, err := ctx.GetStub().GetState(agreementId)
 	if err != nil {
 		return false, fmt.Errorf("failed to get agreement: %v", err)
 	}
 	var agreement Agreement
-	err = json.Unmarshal(agreementJSON, &agreement)
+	err = json.Unmarshal(agreementBytes, &agreement)
 	if err != nil {
 		return false, fmt.Errorf("failed to unmarshal agreement JSON: %v", err)
 	}
@@ -346,13 +342,13 @@ func (s *SmartContract) PushSuppliesToCommodity(ctx contractapi.TransactionConte
 	}
 
 	//get the commodity to append the supplies
-	commodityJSON, err := ctx.GetStub().GetState(commodityId)
+	commodityBytes, err := ctx.GetStub().GetState(commodityId)
 	if err != nil {
 		return false, fmt.Errorf("failed to get commodity: %v", err)
 	}
 
 	var commodity Commodity
-	err = json.Unmarshal(commodityJSON, &commodity)
+	err = json.Unmarshal(commodityBytes, &commodity)
 	if err != nil {
 		return false, fmt.Errorf("failed to unmarshal commodity JSON: %v", err)
 	}
@@ -507,13 +503,13 @@ func (s *SmartContract) GetFarmerCommodities(ctx contractapi.TransactionContextI
 	}
 
 	// Get the owner's wallet
-	walletJSON, err := ctx.GetStub().GetState(ownerID)
+	walletBytes, err := ctx.GetStub().GetState(ownerID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get owner wallet: %v", err)
 	}
 
 	var wallet AssetsWallet
-	err = json.Unmarshal(walletJSON, &wallet)
+	err = json.Unmarshal(walletBytes, &wallet)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal wallet JSON: %v", err)
 	}
@@ -521,13 +517,13 @@ func (s *SmartContract) GetFarmerCommodities(ctx contractapi.TransactionContextI
 	// Get the commodities owned by the owner
 	for _, asset := range wallet.Assets {
 		if asset.Type == "commodity" {
-			commodityJSON, err := ctx.GetStub().GetState(asset.Id)
+			commodityBytes, err := ctx.GetStub().GetState(asset.Id)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get commodity with ID %s: %v", asset.Id, err)
 			}
 
 			var commodity Commodity
-			err = json.Unmarshal(commodityJSON, &commodity)
+			err = json.Unmarshal(commodityBytes, &commodity)
 			if err != nil {
 				return nil, fmt.Errorf("failed to unmarshal commodity JSON: %v", err)
 			}
@@ -552,13 +548,13 @@ func (s *SmartContract) GetBrokerFractions(ctx contractapi.TransactionContextInt
 	}
 
 	// Get the owner's wallet
-	walletJSON, err := ctx.GetStub().GetState(ownerID)
+	walletBytes, err := ctx.GetStub().GetState(ownerID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get owner wallet: %v", err)
 	}
 
 	var wallet AssetsWallet
-	err = json.Unmarshal(walletJSON, &wallet)
+	err = json.Unmarshal(walletBytes, &wallet)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal wallet JSON: %v", err)
 	}
@@ -566,23 +562,23 @@ func (s *SmartContract) GetBrokerFractions(ctx contractapi.TransactionContextInt
 	// Get the commodities owned by the owner
 	for _, asset := range wallet.Assets {
 		if asset.Type == "commodityFraction" {
-			commodityFcJSON, err := ctx.GetStub().GetState(asset.Id)
+			commodityFcBytes, err := ctx.GetStub().GetState(asset.Id)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get commodity fraction with ID %s: %v", asset.Id, err)
 			}
 			//get the commodity fraction
 			var commodityFc CommodityFraction
 			var commodity Commodity
-			err = json.Unmarshal(commodityFcJSON, &commodityFc)
+			err = json.Unmarshal(commodityFcBytes, &commodityFc)
 			if err != nil {
 				return nil, fmt.Errorf("failed to unmarshal commodity fraction JSON: %v", err)
 			}
 			//get the commodity
-			commodityJSON, err := ctx.GetStub().GetState(commodityFc.CommodityId)
+			commodityBytes, err := ctx.GetStub().GetState(commodityFc.CommodityId)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get commodity with ID %s: %v", asset.Id, err)
 			}
-			err = json.Unmarshal(commodityJSON, &commodity)
+			err = json.Unmarshal(commodityBytes, &commodity)
 			if err != nil {
 				return nil, fmt.Errorf("failed to unmarshal commodity fraction JSON: %v", err)
 			}
@@ -608,13 +604,13 @@ func (s *SmartContract) GetAgreements(ctx contractapi.TransactionContextInterfac
 	}
 
 	// Get the owner's wallet
-	walletJSON, err := ctx.GetStub().GetState(ownerID)
+	walletBytes, err := ctx.GetStub().GetState(ownerID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get owner wallet: %v", err)
 	}
 
 	var wallet AssetsWallet
-	err = json.Unmarshal(walletJSON, &wallet)
+	err = json.Unmarshal(walletBytes, &wallet)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal wallet JSON: %v", err)
 	}
@@ -622,13 +618,13 @@ func (s *SmartContract) GetAgreements(ctx contractapi.TransactionContextInterfac
 	// Get the commodities owned by the owner
 	for _, asset := range wallet.Assets {
 		if asset.Type == "agreement" {
-			agreementJSON, err := ctx.GetStub().GetState(asset.Id)
+			agreementBytes, err := ctx.GetStub().GetState(asset.Id)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get commodity with ID %s: %v", asset.Id, err)
 			}
 
 			var agreement Agreement
-			err = json.Unmarshal(agreementJSON, &agreement)
+			err = json.Unmarshal(agreementBytes, &agreement)
 			if err != nil {
 				return nil, fmt.Errorf("failed to unmarshal commodity JSON: %v", err)
 			}

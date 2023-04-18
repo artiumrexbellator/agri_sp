@@ -21,6 +21,11 @@ organizations:
           path: './organizations/peerOrganizations/farmer.com/users/User1@farmer.com/msp/keystore/priv_sk'
         clientSignedCert:
           path: './organizations/peerOrganizations/farmer.com/users/User1@farmer.com/msp/signcerts/User1@farmer.com-cert.pem'
+      - name: 'User2'
+        clientPrivateKey:
+          path: './organizations/peerOrganizations/farmer.com/users/Admin@farmer.com/msp/keystore/priv_sk'
+        clientSignedCert:
+          path: './organizations/peerOrganizations/farmer.com/users/Admin@farmer.com/msp/signcerts/Admin@farmer.com-cert.pem'
     connectionProfile:
       path: './organizations/peerOrganizations/farmer.com/connection-farmer.yaml'
       discover: true

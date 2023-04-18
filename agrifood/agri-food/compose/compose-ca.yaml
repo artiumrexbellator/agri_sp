@@ -12,7 +12,7 @@ networks:
 services:
 
   ca_supplier:
-    image: hyperledger/fabric-ca:1.5
+    image: hyperledger/fabric-ca:1.5.5
     labels:
       service: hyperledger-fabric
     environment:
@@ -32,7 +32,7 @@ services:
       - test
 
   ca_farmer:
-    image: hyperledger/fabric-ca:1.5
+    image: hyperledger/fabric-ca:1.5.5
     labels:
       service: hyperledger-fabric
     environment:
@@ -52,7 +52,7 @@ services:
       - test
 
   ca_broker:
-    image: hyperledger/fabric-ca:1.5
+    image: hyperledger/fabric-ca:1.5.5
     labels:
       service: hyperledger-fabric
     environment:
@@ -72,7 +72,7 @@ services:
       - test
 
   ca_factory:
-    image: hyperledger/fabric-ca:1.5
+    image: hyperledger/fabric-ca:1.5.5
     labels:
       service: hyperledger-fabric
     environment:
@@ -92,7 +92,7 @@ services:
       - test
 
   ca_orderer:
-    image: hyperledger/fabric-ca:1.5
+    image: hyperledger/fabric-ca:1.5.5
     labels:
       service: hyperledger-fabric
     environment:

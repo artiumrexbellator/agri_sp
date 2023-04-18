@@ -3,6 +3,8 @@ fabric-samples/
 agrifood/agri-food/chaincode/vendor
 agrifood/agri-food/commands_for_further_concat.txt
 agrifood/agri-food/explorer/organizations/
+agrifood/agri-food/caliper-benchmarks/organizations/
+agrifood/agri-food/organizations/
 agri_food_UI/server/certificates/
 agri_food_UI/server/identity/
 agri_food_UI/server/uploads/
