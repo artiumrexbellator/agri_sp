@@ -41,9 +41,17 @@ class CreateCommodityWorkload extends WorkloadModuleBase {
    */
   constructor() {
     super();
-    this.txIndex = 0;
   }
-
+  /**
+   * Initialize the workload module with the given parameters.
+   * @param {number} workerIndex The 0-based index of the worker instantiating the workload module.
+   * @param {number} totalWorkers The total number of workers participating in the round.
+   * @param {number} roundIndex The 0-based index of the currently executing round.
+   * @param {Object} roundArguments The user-provided arguments for the round from the benchmark configuration file.
+   * @param {ConnectorBase} sutAdapter The adapter of the underlying SUT.
+   * @param {Object} sutContext The custom context object provided by the SUT adapter.
+   * @async
+   */
   async initializeWorkloadModule(
     workerIndex,
     totalWorkers,
@@ -65,19 +73,30 @@ class CreateCommodityWorkload extends WorkloadModuleBase {
    * Assemble TXs for the round.
    * @return {Promise<TxStatus[]>}
    */
+
   async submitTransaction() {
-    this.txIndex++;
-    let origin = Origin[Math.floor(Math.random() * Origin.length)];
-    let type = Type[Math.floor(Math.random() * Type.length)];
+    const requests = this._generateRequestBatch();
+    await this.sutAdapter.sendRequests(requests);
+  }
+  /**
+   * Generates Smallbank workload for the current batch.
+   * @returns {object[]} Array of requests settings, one for each operation.
+   **/
+  _generateRequestBatch() {
+    let requestBatch = [];
+    for (let index = 0; index < 1; index++) {
+      let origin = Origin[Math.floor(Math.random() * Origin.length)];
+      let type = Type[Math.floor(Math.random() * Type.length)];
+      let args = {
+        contractId: "benchmark",
+        contractFunction: "CreateCommodity",
+        invokerIdentity: "User1",
+        contractArguments: [generateRandomId(), origin, type],
+      };
+      requestBatch.push(args);
+    }
 
-    let args = {
-      contractId: "basic",
-      contractFunction: "CreateCommodity",
-      invokerIdentity: "User1",
-      contractArguments: [generateRandomId(), origin, type],
-    };
-
-    await this.sutAdapter.sendRequests(args);
+    return requestBatch;
   }
 }
 

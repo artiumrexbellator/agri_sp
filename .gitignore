@@ -1,6 +1,7 @@
 fabric-samples/
 .vscode/
-agrifood/agri-food/chaincode/vendor
+agrifood/agri-food/chaincode/basic/vendor
+agrifood/agri-food/chaincode/benchmark/vendor
 agrifood/agri-food/commands_for_further_concat.txt
 agrifood/agri-food/explorer/organizations/
 agrifood/agri-food/caliper-benchmarks/organizations/

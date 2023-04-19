@@ -10,6 +10,7 @@ channels:
     # the chaincodeIDs of all the fabric chaincodes in caliper-benchmarks
     contracts:
     - id: basic
+    - id: benchmark
 
 organizations:
   - mspid: FarmerMSP

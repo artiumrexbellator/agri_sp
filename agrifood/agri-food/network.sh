@@ -360,6 +360,8 @@ function networkDown() {
   if [ "$MODE" != "restart" ]; then
     # delete organizations folder in explorer
     rm -r explorer/organizations/
+    # delete organizations folder in explorer
+    rm -r caliper-benchmarks/organizations/
     #delete certificates and the wallet in node server
     if [ -d "../../agri_food_UI/server/certificates" ]; then
       rm -r ../../agri_food_UI/server/certificates

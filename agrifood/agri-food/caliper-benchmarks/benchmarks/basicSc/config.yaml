@@ -12,15 +12,11 @@ test:
           tps: 5
       workload:
         module: benchmarks/basicSc/createCommodity.js
-      config:
-        timeout: 5
-    #- label: Create an agreement.
-            # 5000 transactions should create around 1000 cars per worker but not guaranteed
-              # so need to set asset limits to less than 1000 for the other tests
-      #txNumber: 50
-      #rateControl:
-        #type: fixed-load
-        #opts:
-          #transactionLoad: 5
-      #workload:
-        #module: benchmarks/basicSc/createAgreement.js
+monitors:
+    resource:
+    - module: docker
+      options:
+        interval: 1
+        containers: ['all']
+      #config:
+        #timeout: 5
