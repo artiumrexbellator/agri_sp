@@ -14,6 +14,8 @@ import ManageAgreements from './ManageAgreements';
 import PushSupplies from './supplier/PushSupplies';
 import CommodityFraction from './broker/CommodityFraction';
 import ManageFractions from './broker/ManageFractions';
+import LotUnit from './factory/LotUnit';
+import ScanPackage from './factory/ScanPackage';
 const titleStyle: React.CSSProperties = {
     color: 'white',
     marginTop: '10px'
@@ -63,6 +65,16 @@ const Home: React.FC = () => {
             title: 'Manage commodity fraction',
             description: 'you can view for each of your own commodity fractions,the fraction and its associated commodity',
             link: 'manageCommodityFraction',
+        }, {
+            key: 7,
+            title: 'Manage the lot unit',
+            description: 'this window will allow you to create a lotUnit for each commodity fraction that is currently processed by the factory in production chain',
+            link: 'manageLotUnit',
+        }, {
+            key: 8,
+            title: 'Scan packages',
+            description: 'you can scan packages by first picking up the right lot unit they belong to.Every scanned package is added to the blockchain',
+            link: 'scanPackage',
         }
     ];
 
@@ -83,7 +95,6 @@ const Home: React.FC = () => {
                         } />
                         <Route path="/" element={token ? <MenuContainer menuItems={menuItems} /> : <Navigate to="/login" />
                         } />
-
                         <Route path="/createCommodity" element={token ? <CreateCommodity /> : <Navigate to="/login" />
                         } />
                         <Route path="/manageCommodity" element={token ? <ManageCommodity /> : <Navigate to="/login" />
@@ -95,6 +106,10 @@ const Home: React.FC = () => {
                         <Route path="/createCommodityFraction" element={token ? <CommodityFraction /> : <Navigate to="/login" />
                         } />
                         <Route path="/manageCommodityFraction" element={token ? <ManageFractions /> : <Navigate to="/login" />
+                        } />
+                        <Route path="/manageLotUnit" element={token ? <LotUnit /> : <Navigate to="/login" />
+                        } />
+                        <Route path="/scanPackage" element={token ? <ScanPackage /> : <Navigate to="/login" />
                         } />
                     </Routes>
                 </Router>

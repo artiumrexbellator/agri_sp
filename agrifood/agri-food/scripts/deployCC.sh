@@ -176,14 +176,14 @@ approveForMyOrg "factory"
 checkCommitReadiness "supplier" "\"SupplierMSP\": true" "\"FarmerMSP\": true"
 #checkCommitReadiness "farmer" "\"SupplierMSP\": true" "\"FarmerMSP\": true"
 
-## now that we know for sure both orgs have approved, commit the definition
+## now that we know for orgs have approved, commit the definition
 commitChaincodeDefinition "supplier" "farmer" "broker" "factory"
 
 ## query on both orgs to see that the definition committed successfully
-queryCommitted "supplier"
-queryCommitted "farmer"
-queryCommitted "broker"
-queryCommitted "factory"
+#queryCommitted "supplier"
+#queryCommitted "farmer"
+#queryCommitted "broker"
+#queryCommitted "factory"
 
 ## Invoke the chaincode - this does require that the chaincode have the 'initLedger'
 ## method defined
