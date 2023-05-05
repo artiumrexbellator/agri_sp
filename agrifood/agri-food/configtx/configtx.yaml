@@ -149,6 +149,89 @@ Organizations:
             Endorsement:
                 Type: Signature
                 Rule: "OR('FactoryMSP.peer')"
+
+    - &Distributor
+        # DefaultOrg defines the organization which is used in the sampleconfig
+        # of the fabric.git development environment
+        Name: DistributorMSP
+
+        # ID to load the MSP definition as
+        ID: DistributorMSP
+
+        MSPDir: ../organizations/peerOrganizations/distributor.com/msp
+
+        # Policies defines the set of policies at this level of the config tree
+        # For organization policies, their canonical path is usually
+        #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('DistributorMSP.admin', 'DistributorMSP.peer', 'DistributorMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('DistributorMSP.admin', 'DistributorMSP.client','DistributorMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('DistributorMSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('DistributorMSP.peer')"
+
+
+    - &Wholesaler
+        # DefaultOrg defines the organization which is used in the sampleconfig
+        # of the fabric.git development environment
+        Name: WholesalerMSP
+
+        # ID to load the MSP definition as
+        ID: WholesalerMSP
+
+        MSPDir: ../organizations/peerOrganizations/wholesaler.com/msp
+
+        # Policies defines the set of policies at this level of the config tree
+        # For organization policies, their canonical path is usually
+        #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('WholesalerMSP.admin', 'WholesalerMSP.peer', 'WholesalerMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('WholesalerMSP.admin', 'WholesalerMSP.client','WholesalerMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('WholesalerMSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('WholesalerMSP.peer')"
+
+
+    - &Retailer
+        # DefaultOrg defines the organization which is used in the sampleconfig
+        # of the fabric.git development environment
+        Name: RetailerMSP
+
+        # ID to load the MSP definition as
+        ID: RetailerMSP
+
+        MSPDir: ../organizations/peerOrganizations/retailer.com/msp
+
+        # Policies defines the set of policies at this level of the config tree
+        # For organization policies, their canonical path is usually
+        #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
+        Policies:
+            Readers:
+                Type: Signature
+                Rule: "OR('RetailerMSP.admin', 'RetailerMSP.peer', 'RetailerMSP.client')"
+            Writers:
+                Type: Signature
+                Rule: "OR('RetailerMSP.admin', 'RetailerMSP.client','RetailerMSP.client')"
+            Admins:
+                Type: Signature
+                Rule: "OR('RetailerMSP.admin')"
+            Endorsement:
+                Type: Signature
+                Rule: "OR('RetailerMSP.peer')"                
 ################################################################################
 #
 #   SECTION: Capabilities
@@ -365,4 +448,7 @@ Profiles:
                 - *Farmer
                 - *Broker                
                 - *Factory               
+                - *Distributor               
+                - *Wholesaler               
+                - *Retailer              
             Capabilities: *ApplicationCapabilities

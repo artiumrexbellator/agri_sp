@@ -149,12 +149,18 @@ infoln "Install chaincode on peer0.broker..."
 installChaincode "broker"
 infoln "Install chaincode on peer0.factory..."
 installChaincode "factory"
+infoln "Install chaincode on peer0.distributor..."
+installChaincode "distributor"
+infoln "Install chaincode on peer0.wholesaler..."
+installChaincode "wholesaler"
+infoln "Install chaincode on peer0.retailer..."
+installChaincode "retailer"
 ## query whether the chaincode is installed
 
-queryInstalled "supplier"
-queryInstalled "farmer"
-queryInstalled "broker"
-queryInstalled "factory"
+#queryInstalled "supplier"
+#queryInstalled "farmer"
+#queryInstalled "broker"
+#queryInstalled "factory"
 
 ## approve the definition for supplier
 approveForMyOrg "supplier"
@@ -169,6 +175,9 @@ approveForMyOrg "supplier"
 approveForMyOrg "farmer"
 approveForMyOrg "broker"
 approveForMyOrg "factory"
+approveForMyOrg "distributor"
+approveForMyOrg "wholesaler"
+approveForMyOrg "retailer"
 
 ## check whether the chaincode definition is ready to be committed
 ## expect them both to have approved
@@ -177,7 +186,7 @@ checkCommitReadiness "supplier" "\"SupplierMSP\": true" "\"FarmerMSP\": true"
 #checkCommitReadiness "farmer" "\"SupplierMSP\": true" "\"FarmerMSP\": true"
 
 ## now that we know for orgs have approved, commit the definition
-commitChaincodeDefinition "supplier" "farmer" "broker" "factory"
+commitChaincodeDefinition "supplier" "farmer" "broker" "factory" "distributor" "wholesaler" "retailer"
 
 ## query on both orgs to see that the definition committed successfully
 #queryCommitted "supplier"

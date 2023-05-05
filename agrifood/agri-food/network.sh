@@ -197,6 +197,39 @@ function createOrgs() {
       fatalln "Failed to generate certificates..."
     fi
 
+  infoln "Creating distributor Identities"
+
+    set -x
+    
+    cryptogen generate --config=./distributor/crypto-config.yaml --output="organizations"
+    res=$?
+    { set +x; } 2>/dev/null
+    if [ $res -ne 0 ]; then
+      fatalln "Failed to generate certificates..."
+    fi
+
+  infoln "Creating wholesaler Identities"
+
+    set -x
+    
+    cryptogen generate --config=./wholesaler/crypto-config.yaml --output="organizations"
+    res=$?
+    { set +x; } 2>/dev/null
+    if [ $res -ne 0 ]; then
+      fatalln "Failed to generate certificates..."
+    fi
+
+  infoln "Creating retailer Identities"
+
+    set -x
+    
+    cryptogen generate --config=./retailer/crypto-config.yaml --output="organizations"
+    res=$?
+    { set +x; } 2>/dev/null
+    if [ $res -ne 0 ]; then
+      fatalln "Failed to generate certificates..."
+    fi
+
     infoln "Creating Orderer Org Identities"
 
     set -x
@@ -213,7 +246,7 @@ function createOrgs() {
 
   fi
 
-  infoln "Generating CCP files for supplier,farmer,broker,factory"
+  infoln "Generating CCP files for supplier,farmer,broker,factory,distributor,wholesaler and retailer"
   ./ccp-template/ccp-generate.sh
   mkdir explorer/organizations/
   mkdir caliper-benchmarks/organizations/
@@ -229,6 +262,15 @@ function createOrgs() {
 
   mkdir -p ../../agri_food_UI/server/certificates/factory
   cp organizations/peerOrganizations/factory.com/msp/tlscacerts/tlsca.factory.com-cert.pem ../../agri_food_UI/server/certificates/factory
+
+  mkdir -p ../../agri_food_UI/server/certificates/distributor
+  cp organizations/peerOrganizations/distributor.com/msp/tlscacerts/tlsca.distributor.com-cert.pem ../../agri_food_UI/server/certificates/distributor
+
+  mkdir -p ../../agri_food_UI/server/certificates/wholesaler
+  cp organizations/peerOrganizations/wholesaler.com/msp/tlscacerts/tlsca.wholesaler.com-cert.pem ../../agri_food_UI/server/certificates/wholesaler
+
+  mkdir -p ../../agri_food_UI/server/certificates/retailer
+  cp organizations/peerOrganizations/retailer.com/msp/tlscacerts/tlsca.retailer.com-cert.pem ../../agri_food_UI/server/certificates/retailer
 
   mkdir -p ../../agri_food_UI/server/certificates/supplier
   cp organizations/peerOrganizations/supplier.com/msp/tlscacerts/tlsca.supplier.com-cert.pem ../../agri_food_UI/server/certificates/supplier
@@ -381,9 +423,12 @@ function networkDown() {
     ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf system-genesis-block/*.block organizations/peerOrganizations organizations/ordererOrganizations'
     ## remove fabric ca artifacts
     ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/supplier/msp organizations/fabric-ca/supplier/tls-cert.pem organizations/fabric-ca/supplier/ca-cert.pem organizations/fabric-ca/supplier/IssuerPublicKey organizations/fabric-ca/supplier/IssuerRevocationPublicKey organizations/fabric-ca/supplier/fabric-ca-server.db'
-    ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/farmer/msp organizations/fabric-ca/farmer/tls-cert.pem organizations/fabric-ca/farmer/ca-cert.pem organizations/fabric-ca/farmer/IssuerPublicKey organizations/fabric-ca/farmer/IssuerRevocationPublicKey organizations/fabric-ca/supplier/fabric-ca-server.db'
-    ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/broker/msp organizations/fabric-ca/broker/tls-cert.pem organizations/fabric-ca/broker/ca-cert.pem organizations/fabric-ca/broker/IssuerPublicKey organizations/fabric-ca/broker/IssuerRevocationPublicKey organizations/fabric-ca/supplier/fabric-ca-server.db'
-    ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/factory/msp organizations/fabric-ca/factory/tls-cert.pem organizations/fabric-ca/factory/ca-cert.pem organizations/fabric-ca/factory/IssuerPublicKey organizations/fabric-ca/factory/IssuerRevocationPublicKey organizations/fabric-ca/supplier/fabric-ca-server.db'
+    ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/farmer/msp organizations/fabric-ca/farmer/tls-cert.pem organizations/fabric-ca/farmer/ca-cert.pem organizations/fabric-ca/farmer/IssuerPublicKey organizations/fabric-ca/farmer/IssuerRevocationPublicKey organizations/fabric-ca/farmer/fabric-ca-server.db'
+    ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/broker/msp organizations/fabric-ca/broker/tls-cert.pem organizations/fabric-ca/broker/ca-cert.pem organizations/fabric-ca/broker/IssuerPublicKey organizations/fabric-ca/broker/IssuerRevocationPublicKey organizations/fabric-ca/broker/fabric-ca-server.db'
+    ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/factory/msp organizations/fabric-ca/factory/tls-cert.pem organizations/fabric-ca/factory/ca-cert.pem organizations/fabric-ca/factory/IssuerPublicKey organizations/fabric-ca/factory/IssuerRevocationPublicKey organizations/fabric-ca/factory/fabric-ca-server.db'
+    ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/distributor/msp organizations/fabric-ca/distributor/tls-cert.pem organizations/fabric-ca/distributor/ca-cert.pem organizations/fabric-ca/distributor/IssuerPublicKey organizations/fabric-ca/distributor/IssuerRevocationPublicKey organizations/fabric-ca/distributor/fabric-ca-server.db'
+    ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/wholesaler/msp organizations/fabric-ca/wholesaler/tls-cert.pem organizations/fabric-ca/wholesaler/ca-cert.pem organizations/fabric-ca/wholesaler/IssuerPublicKey organizations/fabric-ca/wholesaler/IssuerRevocationPublicKey organizations/fabric-ca/wholesaler/fabric-ca-server.db'
+    ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/retailer/msp organizations/fabric-ca/retailer/tls-cert.pem organizations/fabric-ca/retailer/ca-cert.pem organizations/fabric-ca/retailer/IssuerPublicKey organizations/fabric-ca/retailer/IssuerRevocationPublicKey organizations/fabric-ca/retailer/fabric-ca-server.db'
     ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf organizations/fabric-ca/ordererOrg/msp organizations/fabric-ca/ordererOrg/tls-cert.pem organizations/fabric-ca/ordererOrg/ca-cert.pem organizations/fabric-ca/ordererOrg/IssuerPublicKey organizations/fabric-ca/ordererOrg/IssuerRevocationPublicKey organizations/fabric-ca/ordererOrg/fabric-ca-server.db'
     ${CONTAINER_CLI} run --rm -v "$(pwd):/data" busybox sh -c 'cd /data && rm -rf addOrg3/fabric-ca/org3/msp addOrg3/fabric-ca/org3/tls-cert.pem addOrg3/fabric-ca/org3/ca-cert.pem addOrg3/fabric-ca/org3/IssuerPublicKey addOrg3/fabric-ca/org3/IssuerRevocationPublicKey addOrg3/fabric-ca/org3/fabric-ca-server.db'
     # remove channel and script artifacts

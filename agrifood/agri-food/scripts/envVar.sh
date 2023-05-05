@@ -16,6 +16,9 @@ export PEER0_SUPPLIER_CA=${PWD}/organizations/peerOrganizations/supplier.com/tls
 export PEER0_FARMER_CA=${PWD}/organizations/peerOrganizations/farmer.com/tlsca/tlsca.farmer.com-cert.pem
 export PEER0_BROKER_CA=${PWD}/organizations/peerOrganizations/broker.com/tlsca/tlsca.broker.com-cert.pem
 export PEER0_FACTORY_CA=${PWD}/organizations/peerOrganizations/factory.com/tlsca/tlsca.factory.com-cert.pem
+export PEER0_DISTRIBUTOR_CA=${PWD}/organizations/peerOrganizations/distributor.com/tlsca/tlsca.distributor.com-cert.pem
+export PEER0_WHOLESALER_CA=${PWD}/organizations/peerOrganizations/wholesaler.com/tlsca/tlsca.wholesaler.com-cert.pem
+export PEER0_RETAILER_CA=${PWD}/organizations/peerOrganizations/retailer.com/tlsca/tlsca.retailer.com-cert.pem
 export PEER0_ORG3_CA=${PWD}/organizations/peerOrganizations/org3.example.com/tlsca/tlsca.org3.example.com-cert.pem
 export ORDERER_ADMIN_TLS_SIGN_CERT=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
 export ORDERER_ADMIN_TLS_PRIVATE_KEY=${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.key
@@ -49,6 +52,21 @@ setGlobals() {
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_FACTORY_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/factory.com/users/Admin@factory.com/msp
     export CORE_PEER_ADDRESS=localhost:5051
+  elif [ $USING_ORG == "distributor" ]; then
+    export CORE_PEER_LOCALMSPID="DistributorMSP"
+    export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_DISTRIBUTOR_CA
+    export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/distributor.com/users/Admin@distributor.com/msp
+    export CORE_PEER_ADDRESS=localhost:4051
+  elif [ $USING_ORG == "wholesaler" ]; then
+    export CORE_PEER_LOCALMSPID="WholesalerMSP"
+    export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_WHOLESALER_CA
+    export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/wholesaler.com/users/Admin@wholesaler.com/msp
+    export CORE_PEER_ADDRESS=localhost:3051
+  elif [ $USING_ORG == "retailer" ]; then
+    export CORE_PEER_LOCALMSPID="RetailerMSP"
+    export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_RETAILER_CA
+    export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/retailer.com/users/Admin@retailer.com/msp
+    export CORE_PEER_ADDRESS=localhost:2051
   #elif [ $USING_ORG == 3 ]; then
     #export CORE_PEER_LOCALMSPID="Org3MSP"
     #export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG3_CA
@@ -81,6 +99,12 @@ setGlobalsCLI() {
     export CORE_PEER_ADDRESS=peer0.broker.com:6051
   elif [ $USING_ORG == "factory" ]; then
     export CORE_PEER_ADDRESS=peer0.factory.com:5051
+  elif [ $USING_ORG == "distributor" ]; then
+    export CORE_PEER_ADDRESS=peer0.distributor.com:4051
+  elif [ $USING_ORG == "wholesaler" ]; then
+    export CORE_PEER_ADDRESS=peer0.wholesaler.com:3051
+  elif [ $USING_ORG == "retailer" ]; then
+    export CORE_PEER_ADDRESS=peer0.retailer.com:2051
   elif [ $USING_ORG == "other" ]; then
     export CORE_PEER_ADDRESS=peer0.org3.example.com:11051
   else

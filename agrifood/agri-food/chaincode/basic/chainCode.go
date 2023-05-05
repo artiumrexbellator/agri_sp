@@ -105,6 +105,14 @@ type CommodityAndFraction struct {
 	Fraction  CommodityFraction
 }
 
+//this struct contains all the trajectory of the package from the commodity to the last station in packages
+
+type PackageTrace struct {
+	CF  CommodityAndFraction
+	Lot LotUnit
+	Pkg Package
+}
+
 func (s *SmartContract) CreateCommodity(ctx contractapi.TransactionContextInterface, id string, origin string, materialType string) error {
 	// Check invoking user identity
 	creatorOrg, err := cid.GetMSPID(ctx.GetStub())
@@ -610,6 +618,65 @@ func (s *SmartContract) UpdatePackage(ctx contractapi.TransactionContextInterfac
 		return false, err
 	}
 	return true, nil
+}
+
+// function to retreive the full trajectory of the package
+func (s *SmartContract) Getpackage(ctx contractapi.TransactionContextInterface, id string) (*PackageTrace, error) {
+	//check if the package exists
+	exists, err := s.AssetExists(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read from world state: %v", err)
+	}
+	if !exists {
+		return nil, fmt.Errorf("the the package %s doesn't exist", id)
+	}
+	//get the package
+	packageBytes, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get the package: %v", err)
+	}
+
+	pkgTrace := &PackageTrace{}
+	var pkg Package
+	var cf CommodityAndFraction
+	var lot LotUnit
+	err = json.Unmarshal(packageBytes, &pkg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal package JSON: %v", err)
+	}
+	//get the lot Unit
+	lotUnitBytes, err := ctx.GetStub().GetState(pkg.LotUnitId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get the lot: %v", err)
+	}
+	err = json.Unmarshal(lotUnitBytes, &lot)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal lotUnit JSON: %v", err)
+	}
+	//get the commodity fraction
+	cfBytes, err := ctx.GetStub().GetState(lot.CommodityFractionId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get the commodity fraction: %v", err)
+	}
+	err = json.Unmarshal(cfBytes, &cf.Fraction)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal commodity fraction JSON: %v", err)
+	}
+	//get the commodity
+	commBytes, err := ctx.GetStub().GetState(cf.Fraction.CommodityId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get the commodity : %v", err)
+	}
+	err = json.Unmarshal(commBytes, &cf.Commodity)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal commodity JSON: %v", err)
+	}
+	//fill in package tracer
+	pkgTrace.Pkg = pkg
+	pkgTrace.CF = cf
+	pkgTrace.Lot = lot
+
+	return pkgTrace, nil
 }
 
 // GetLotUnits returns the lot units owned by the invoking factory.

@@ -91,6 +91,23 @@
          ledgerQuery: true
          eventSource: true
 
+       peer0.distributor.com:
+         endorsingPeer: true
+         chaincodeQuery: true
+         ledgerQuery: true
+         eventSource: true
+      
+       peer0.wholesaler.com:
+         endorsingPeer: true
+         chaincodeQuery: true
+         ledgerQuery: true
+         eventSource: true
+      
+       peer0.retailer.com:
+         endorsingPeer: true
+         chaincodeQuery: true
+         ledgerQuery: true
+         eventSource: true
  #
  # [Required]. List of organizations for all channels. At least one organization
  # is required.
@@ -152,6 +169,45 @@
        - peer0.factory.com
      certificateAuthorities:
        - ca-factory
+
+   Distributor:
+     #
+     # [Required]. The MSPID used to identify DigiBank
+     #
+     mspid: DistributorMSP
+     #
+     # [Required]. The DigiBank peers
+     #
+     peers:
+       - peer0.distributor.com
+     certificateAuthorities:
+       - ca-distributor 
+
+   Wholesaler:
+     #
+     # [Required]. The MSPID used to identify DigiBank
+     #
+     mspid: WholesalerMSP
+     #
+     # [Required]. The DigiBank peers
+     #
+     peers:
+       - peer0.wholesaler.com
+     certificateAuthorities:
+       - ca-wholesaler 
+
+   Retailer:
+     #
+     # [Required]. The MSPID used to identify DigiBank
+     #
+     mspid: RetailerMSP
+     #
+     # [Required]. The DigiBank peers
+     #
+     peers:
+       - peer0.retailer.com
+     certificateAuthorities:
+       - ca-retailer
  #
  # [Optional]. Orderer physical information, by orderer name
  #
@@ -217,6 +273,29 @@
        request-timeout: 120001
      tlsCACerts:
       path: server/certificates/factory/tlsca.factory.com-cert.pem
+
+   peer0.distributor.com:
+     url: grpcs://localhost:4051
+     grpcOptions:
+       ssl-target-name-override: peer0.distributor.com
+       request-timeout: 120001
+     tlsCACerts:
+      path: server/certificates/distributor/tlsca.distributor.com-cert.pem
+
+   peer0.wholesaler.com:
+     url: grpcs://localhost:3051
+     grpcOptions:
+       ssl-target-name-override: peer0.wholesaler.com
+       request-timeout: 120001
+     tlsCACerts:
+      path: server/certificates/wholesaler/tlsca.wholesaler.com-cert.pem   
+   peer0.retailer.com:
+     url: grpcs://localhost:2051
+     grpcOptions:
+       ssl-target-name-override: peer0.retailer.com
+       request-timeout: 120001
+     tlsCACerts:
+      path: server/certificates/retailer/tlsca.retailer.com-cert.pem      
  # [Optional]. Fabric-CA Certificate Authority physical information, by name.
  # This information can be used to (e.g.) enroll new users. Communication is via
  # REST, hence options relate to HTTP rather than gRPC.

@@ -16,23 +16,41 @@ import CommodityFraction from './broker/CommodityFraction';
 import ManageFractions from './broker/ManageFractions';
 import LotUnit from './factory/LotUnit';
 import ScanPackage from './factory/ScanPackage';
+import Package from './retailer/Package';
 const titleStyle: React.CSSProperties = {
     color: 'white',
     marginTop: '10px'
 }
-
+interface Roles {
+    [key: string]: number[];
+}
 const Home: React.FC = () => {
     const [token, setToken] = useState(null);
+    const [msp, setMsp] = useState<string | null>(null);
     useEffect(() => {
         const fetchToken = async () => {
             await axios.get(`${server}/api/cookie`, { withCredentials: true }).then(response => {
                 if (response.status == 200) {
                     setToken(response.data)
+                    axios.get(`${server}/api/msp`, { withCredentials: true }).then(response => {
+                        if (response.status == 200) {
+                            setMsp(response.data)
+                        }
+                    });
                 }
             });
         }
         fetchToken()
     }, [])
+    const roles: Roles = {
+        FarmerMSP: [1, 2, 3],
+        SupplierMSP: [4],
+        BrokerMSP: [3, 5, 6],
+        FactoryMSP: [7, 8],
+        DistributorMSP: [8],
+        WholesalerMSP: [8],
+        RetailerMSP: [8, 9],
+    }
     const menuItems = [
         {
             key: 1,
@@ -73,8 +91,13 @@ const Home: React.FC = () => {
         }, {
             key: 8,
             title: 'Scan packages',
-            description: 'you can scan packages by first picking up the right lot unit they belong to.Every scanned package is added to the blockchain',
+            description: 'you can scan packages by first picking up the right lot unit they belong to.Every scanned package is added/modified to/in the blockchain',
             link: 'scanPackage',
+        }, {
+            key: 9,
+            title: 'get package',
+            description: 'scan your package to get full informations about its road to you hands',
+            link: 'getPackage',
         }
     ];
 
@@ -93,7 +116,7 @@ const Home: React.FC = () => {
                     <Routes>
                         <Route path="/login" element={token ? <Navigate to="/" /> : <Connect />
                         } />
-                        <Route path="/" element={token ? <MenuContainer menuItems={menuItems} /> : <Navigate to="/login" />
+                        <Route path="/" element={token ? <MenuContainer menuItems={!!msp ? menuItems.filter(item => roles[msp].includes(item.key)) : []} /> : <Navigate to="/login" />
                         } />
                         <Route path="/createCommodity" element={token ? <CreateCommodity /> : <Navigate to="/login" />
                         } />
@@ -110,6 +133,8 @@ const Home: React.FC = () => {
                         <Route path="/createLotUnit" element={token ? <LotUnit /> : <Navigate to="/login" />
                         } />
                         <Route path="/scanPackage" element={token ? <ScanPackage /> : <Navigate to="/login" />
+                        } />
+                        <Route path="/getPackage" element={token ? <Package /> : <Navigate to="/login" />
                         } />
                     </Routes>
                 </Router>

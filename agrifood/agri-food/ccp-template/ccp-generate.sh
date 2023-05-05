@@ -66,3 +66,33 @@ CAPEM=organizations/peerOrganizations/factory.com/ca/ca.factory.com-cert.pem
 
 echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/factory.com/connection-factory.json
 echo "$(yaml_ccp $ORG $MSP $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/factory.com/connection-factory.yaml
+
+ORG=distributor
+MSP=Distributor
+P0PORT=4051
+CAPORT=4054
+PEERPEM=organizations/peerOrganizations/distributor.com/tlsca/tlsca.distributor.com-cert.pem
+CAPEM=organizations/peerOrganizations/distributor.com/ca/ca.distributor.com-cert.pem
+
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/distributor.com/connection-distributor.json
+echo "$(yaml_ccp $ORG $MSP $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/distributor.com/connection-distributor.yaml
+
+ORG=wholesaler
+MSP=Wholesaler
+P0PORT=3051
+CAPORT=3054
+PEERPEM=organizations/peerOrganizations/wholesaler.com/tlsca/tlsca.wholesaler.com-cert.pem
+CAPEM=organizations/peerOrganizations/wholesaler.com/ca/ca.wholesaler.com-cert.pem
+
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/wholesaler.com/connection-wholesaler.json
+echo "$(yaml_ccp $ORG $MSP $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/wholesaler.com/connection-wholesaler.yaml
+
+ORG=retailer
+MSP=Retailer
+P0PORT=2051
+CAPORT=2054
+PEERPEM=organizations/peerOrganizations/retailer.com/tlsca/tlsca.retailer.com-cert.pem
+CAPEM=organizations/peerOrganizations/retailer.com/ca/ca.retailer.com-cert.pem
+
+echo "$(json_ccp $ORG $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/retailer.com/connection-retailer.json
+echo "$(yaml_ccp $ORG $MSP $P0PORT $CAPORT $PEERPEM $CAPEM)" > organizations/peerOrganizations/retailer.com/connection-retailer.yaml

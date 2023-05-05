@@ -53,6 +53,16 @@ app.get("/api/cookie", (req, res) => {
   }
   res.send(token);
 });
+//get msp in token
+app.get("/api/msp", (req, res) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).send("Unauthorized");
+  } else {
+    const Token = jwt.decode(token);
+    res.send(Token.sub.split("/")[0]);
+  }
+});
 //function to upload certs
 app.post("/upload/cert", upload.single("cert"), (req, res) => {
   const filePath = req.file.path;
@@ -364,7 +374,7 @@ app.post("/api/create/lotUnit", async (req, res) => {
     const result = await contract.submitTransaction("CreateLotUnit", ...args);
     const resultJSON = JSON.parse(result.toString("utf8"));
     if (resultJSON) res.sendStatus(200);
-    else res.status(500).send("error creating the supply");
+    else res.status(500).send("error creating the lotUnit");
   } catch (error) {
     res.status(500).send(error.message);
   } finally {
@@ -401,13 +411,57 @@ app.post("/api/create/package", async (req, res) => {
     const contract = network.getContract(chaincodeId);
 
     // Submit transactions for the smart contract
-    const args = [req.body.id, req.body.lot, ""];
+    const args = [req.body.id, req.body.lot];
     const result = await contract.submitTransaction("CreatePackage", ...args);
     const resultJSON = JSON.parse(result.toString("utf8"));
     if (resultJSON) res.sendStatus(200);
-    else res.status(500).send("error creating the supply");
+    else res.status(500).send("error creating the package");
   } catch (error) {
     res.status(500).send(error.message);
+  } finally {
+    // Disconnect from the gateway peer when all work for this client identity is complete
+    gateway.disconnect();
+  }
+});
+//api to update a package
+app.post("/api/update/package", async (req, res) => {
+  const gateway = await getGateway(req.cookies.token);
+  try {
+    // Obtain the smart contract with which our application wants to interact
+    const network = await gateway.getNetwork(channelName);
+    const contract = network.getContract(chaincodeId);
+
+    // Submit transactions for the smart contract
+    const args = [req.body.id];
+    const result = await contract.submitTransaction("UpdatePackage", ...args);
+    const resultJSON = JSON.parse(result.toString("utf8"));
+    if (resultJSON) res.sendStatus(200);
+    else res.status(500).send("error updating the package");
+  } catch (error) {
+    res.status(500).send(error.message);
+  } finally {
+    // Disconnect from the gateway peer when all work for this client identity is complete
+    gateway.disconnect();
+  }
+});
+//api to get agreements of the authentified client
+app.get("/api/get/package", async (req, res) => {
+  const gateway = await getGateway(req.cookies.token);
+  try {
+    // Obtain the smart contract with which our application wants to interact
+    const network = await gateway.getNetwork(channelName);
+    const contract = network.getContract(chaincodeId);
+
+    // Submit transactions for the smart contract
+    const args = [req.query.id];
+    const submitResult = await contract.evaluateTransaction(
+      "Getpackage",
+      ...args
+    );
+    const resultJSON = JSON.parse(submitResult.toString("utf8"));
+    res.status(200).json(resultJSON);
+  } catch (error) {
+    res.status(500).send("error invoking chaincode");
   } finally {
     // Disconnect from the gateway peer when all work for this client identity is complete
     gateway.disconnect();
