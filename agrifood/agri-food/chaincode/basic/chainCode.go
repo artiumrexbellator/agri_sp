@@ -81,6 +81,23 @@ type LotUnit struct {
 	CreatedDate         string  `json:"created_date"`
 }
 
+//this struct contains all information about the package including its creation and transfert phases
+
+type Package struct {
+	Id          string          `json:"id"`
+	Owner       string          `json:"owner"`
+	LotUnitId   string          `json:"lotUnitId"`
+	CreatedDate string          `json:"created_date"`
+	Holders     []PackageHolder `json:"holders"`
+}
+
+// this struct contains the information about the package holder
+type PackageHolder struct {
+	Owner        string `json:"owner`
+	Organization string `json:"organization"`
+	HoldDate     string `json:"holdDate"`
+}
+
 //this struct contains for each commodity fraction,both the fraction and the commodity
 
 type CommodityAndFraction struct {
@@ -490,6 +507,152 @@ func (s *SmartContract) CreateLotUnit(ctx contractapi.TransactionContextInterfac
 	}
 
 	return true, nil
+}
+
+// CreatePackage a function to create a package that's scanned by the factory
+func (s *SmartContract) CreatePackage(ctx contractapi.TransactionContextInterface, id string, lotUnit string) (bool, error) {
+	//get the owner first
+	owner, err := cid.GetID(ctx.GetStub())
+	if err != nil {
+		return false, fmt.Errorf("ownerId error: %v", err)
+	}
+	// Check invoking user identity
+	creatorOrg, err := cid.GetMSPID(ctx.GetStub())
+	if err != nil {
+		return false, fmt.Errorf("failed to get MSP ID: %v", err)
+	}
+	if creatorOrg != "FactoryMSP" {
+		return false, fmt.Errorf("only members of FactoryMSP can create lot units")
+	}
+
+	//check if the package doesn't exist already
+	exists, err := s.AssetExists(ctx, id)
+	if err != nil {
+		return false, fmt.Errorf("failed to read from world state: %v", err)
+	}
+	if exists {
+		return false, fmt.Errorf("the commodity %s already exists", id)
+	}
+
+	//create the package
+	var today = time.Now().UTC().Format("2006-01-02")
+
+	pkg := &Package{
+		Id:          id,
+		Owner:       owner,
+		LotUnitId:   lotUnit,
+		CreatedDate: today,
+		Holders:     make([]PackageHolder, 0, 3),
+	}
+	//to json
+	pkgJSON, err := json.Marshal(pkg)
+	if err != nil {
+		return false, err
+	}
+	//save the package in world state
+	err = ctx.GetStub().PutState(id, pkgJSON)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+// function to update the scanned package and append holder's informations to it
+func (s *SmartContract) UpdatePackage(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
+	//get the owner first
+	owner, err := cid.GetID(ctx.GetStub())
+	if err != nil {
+		return false, fmt.Errorf("ownerId error: %v", err)
+	}
+	// Check invoking user identity
+	creatorOrg, err := cid.GetMSPID(ctx.GetStub())
+	if err != nil {
+		return false, fmt.Errorf("failed to get MSP ID: %v", err)
+	}
+
+	//check if the package exists
+	exists, err := s.AssetExists(ctx, id)
+	if err != nil {
+		return false, fmt.Errorf("failed to read from world state: %v", err)
+	}
+	if !exists {
+		return false, fmt.Errorf("the the package %s doesn't exist", id)
+	}
+	//get the package to append the holder
+	packageBytes, err := ctx.GetStub().GetState(id)
+	if err != nil {
+		return false, fmt.Errorf("failed to get the package: %v", err)
+	}
+
+	var pkg Package
+	err = json.Unmarshal(packageBytes, &pkg)
+	if err != nil {
+		return false, fmt.Errorf("failed to unmarshal package JSON: %v", err)
+	}
+
+	//create the supply
+	var today = time.Now().UTC().Format("2006-01-02")
+
+	pkgHolder := &PackageHolder{
+		Owner:        owner,
+		Organization: creatorOrg,
+		HoldDate:     today,
+	}
+	//append the holder to the package
+	pkg.Holders = append(pkg.Holders, *pkgHolder)
+	pkgJSON, err := json.Marshal(pkg)
+	if err != nil {
+		return false, err
+	}
+	//save the package in world state
+	err = ctx.GetStub().PutState(id, pkgJSON)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+// GetLotUnits returns the lot units owned by the invoking factory.
+func (s *SmartContract) GetLotUnits(ctx contractapi.TransactionContextInterface) ([]*LotUnit, error) {
+	var lotUnits []*LotUnit
+
+	// Get the owner ID
+	ownerID, err := cid.GetID(ctx.GetStub())
+	if err != nil {
+		return nil, fmt.Errorf("failed to get owner ID: %v", err)
+	}
+
+	// Get the owner's wallet
+	walletBytes, err := ctx.GetStub().GetState(ownerID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get owner wallet: %v", err)
+	}
+
+	var wallet AssetsWallet
+	err = json.Unmarshal(walletBytes, &wallet)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal wallet JSON: %v", err)
+	}
+
+	// Get the commodities owned by the owner
+	for _, asset := range wallet.Assets {
+		if asset.Type == "lotUnit" {
+			lotUnitBytes, err := ctx.GetStub().GetState(asset.Id)
+			if err != nil {
+				return nil, fmt.Errorf("failed to get lot unit with ID %s: %v", asset.Id, err)
+			}
+
+			var lotUnit LotUnit
+			err = json.Unmarshal(lotUnitBytes, &lotUnit)
+			if err != nil {
+				return nil, fmt.Errorf("failed to unmarshal commodity JSON: %v", err)
+			}
+
+			lotUnits = append(lotUnits, &lotUnit)
+		}
+	}
+
+	return lotUnits, nil
 }
 
 // GetFarmerCommodities returns the commodities owned by the invoking farmer.

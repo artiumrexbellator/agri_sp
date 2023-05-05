@@ -274,6 +274,25 @@ app.get("/api/get/agreements", async (req, res) => {
     gateway.disconnect();
   }
 });
+//api to get agreements of the authentified client
+app.get("/api/get/agreements", async (req, res) => {
+  const gateway = await getGateway(req.cookies.token);
+  try {
+    // Obtain the smart contract with which our application wants to interact
+    const network = await gateway.getNetwork(channelName);
+    const contract = network.getContract(chaincodeId);
+
+    // Submit transactions for the smart contract
+    const submitResult = await contract.evaluateTransaction("GetAgreements");
+    const resultJSON = JSON.parse(submitResult.toString("utf8"));
+    res.status(200).json(resultJSON);
+  } catch (error) {
+    res.status(500).send("error invoking chaincode");
+  } finally {
+    // Disconnect from the gateway peer when all work for this client identity is complete
+    gateway.disconnect();
+  }
+});
 //api to create an agreement for a specific commodity
 app.post("/api/create/agreement", async (req, res) => {
   const gateway = await getGateway(req.cookies.token);
@@ -325,7 +344,75 @@ app.post("/api/create/supply", async (req, res) => {
     gateway.disconnect();
   }
 });
+//api to create a lot unit
+app.post("/api/create/lotUnit", async (req, res) => {
+  console.log(req.body);
+  const gateway = await getGateway(req.cookies.token);
+  try {
+    // Obtain the smart contract with which our application wants to interact
+    const network = await gateway.getNetwork(channelName);
+    const contract = network.getContract(chaincodeId);
 
+    // Submit transactions for the smart contract
+    const args = [
+      req.body.id,
+      req.body.commodityFRC,
+      req.body.agreement,
+      req.body.lotNumber,
+      req.body.quantity,
+    ];
+    const result = await contract.submitTransaction("CreateLotUnit", ...args);
+    const resultJSON = JSON.parse(result.toString("utf8"));
+    if (resultJSON) res.sendStatus(200);
+    else res.status(500).send("error creating the supply");
+  } catch (error) {
+    res.status(500).send(error.message);
+  } finally {
+    // Disconnect from the gateway peer when all work for this client identity is complete
+    gateway.disconnect();
+  }
+});
+
+//api to get agreements of the authentified client
+app.get("/api/get/lotUnits", async (req, res) => {
+  const gateway = await getGateway(req.cookies.token);
+  try {
+    // Obtain the smart contract with which our application wants to interact
+    const network = await gateway.getNetwork(channelName);
+    const contract = network.getContract(chaincodeId);
+
+    // Submit transactions for the smart contract
+    const submitResult = await contract.evaluateTransaction("GetLotUnits");
+    const resultJSON = JSON.parse(submitResult.toString("utf8"));
+    res.status(200).json(resultJSON);
+  } catch (error) {
+    res.status(500).send("error invoking chaincode");
+  } finally {
+    // Disconnect from the gateway peer when all work for this client identity is complete
+    gateway.disconnect();
+  }
+});
+//api to create a package
+app.post("/api/create/package", async (req, res) => {
+  const gateway = await getGateway(req.cookies.token);
+  try {
+    // Obtain the smart contract with which our application wants to interact
+    const network = await gateway.getNetwork(channelName);
+    const contract = network.getContract(chaincodeId);
+
+    // Submit transactions for the smart contract
+    const args = [req.body.id, req.body.lot, ""];
+    const result = await contract.submitTransaction("CreatePackage", ...args);
+    const resultJSON = JSON.parse(result.toString("utf8"));
+    if (resultJSON) res.sendStatus(200);
+    else res.status(500).send("error creating the supply");
+  } catch (error) {
+    res.status(500).send(error.message);
+  } finally {
+    // Disconnect from the gateway peer when all work for this client identity is complete
+    gateway.disconnect();
+  }
+});
 app.listen(3000, () => {
   console.log("Server started on port 3000");
 });

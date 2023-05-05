@@ -12,9 +12,10 @@ const layout = {
 
 interface LotUnit {
     id: string,
-    number: string,
-    commodityFraction: string,
+    commodityFRC: string,
     agreement: string,
+    lotNumber: string,
+    quantity: number
 }
 
 /* eslint-disable no-template-curly-in-string */
@@ -25,24 +26,29 @@ const validateMessages = {
 
 
 const LotUnit: React.FC = () => {
-    const [commodityFraction, setCommodityFraction] = useState<LotUnit>({ id: uuidv4(), number: '0', commodityFraction: '', agreement: '', })
-    const numberHandler = (e: any) => {
-        const cf: LotUnit = { ...commodityFraction, number: String(e) }
+    const [lotUnit, setCommodityFraction] = useState<LotUnit>({ id: uuidv4(), commodityFRC: '', lotNumber: '', agreement: '', quantity: 0 })
+    const quantityHandler = (e: any) => {
+        const cf: LotUnit = { ...lotUnit, quantity: Number(e) }
+        setCommodityFraction(cf)
+    }
+    const numberHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const cf: LotUnit = { ...lotUnit, lotNumber: e.target.value }
         setCommodityFraction(cf)
     }
     const commodityFractionHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const cf: LotUnit = { ...commodityFraction, commodityFraction: e.target.value }
+        const cf: LotUnit = { ...lotUnit, commodityFRC: e.target.value }
         setCommodityFraction(cf)
     }
+
     const agreementHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const cf: LotUnit = { ...commodityFraction, agreement: e.target.value }
+        const cf: LotUnit = { ...lotUnit, agreement: e.target.value }
         setCommodityFraction(cf)
     }
     const submit = () => {
         try {
-            axios.post(`${server}/api/create/lotUnit`, commodityFraction, { withCredentials: true }).then(response => {
+            axios.post(`${server}/api/create/lotUnit`, lotUnit, { withCredentials: true }).then(response => {
                 if (response.status == 200) {
-                    message.success({ content: `commodity fraction is created successfully` })
+                    message.success({ content: `the lot unit is created successfully` })
                 } else {
                     message.error({ content: 'internal error' })
                 }
@@ -61,17 +67,20 @@ const LotUnit: React.FC = () => {
                 name="nest-messages"
                 validateMessages={validateMessages}
             >
-                <Form.Item initialValue={commodityFraction.id} name={['user', 'id']} label="id" >
+                <Form.Item initialValue={lotUnit.id} name={['user', 'id']} label="id" >
                     <Input disabled />
                 </Form.Item>
-                <Form.Item name={['user', 'commodityFraction']} label="commodity fraction" rules={[{ required: true }]}>
+                <Form.Item name={['user', 'lotUnit']} label="comm fraction" rules={[{ required: true }]}>
                     <Input onChange={commodityFractionHandler} />
                 </Form.Item>
                 <Form.Item name={['user', 'agreement']} label="agreement" rules={[{ required: true }]}>
                     <Input onChange={agreementHandler} />
                 </Form.Item>
-                <Form.Item name={['user', 'number']} label="lot number" rules={[{ required: true }]}>
-                    <InputNumber onChange={numberHandler} />
+                <Form.Item name={['user', 'quantity']} label="quantity" rules={[{ required: true }]}>
+                    <InputNumber onChange={quantityHandler} />
+                </Form.Item>
+                <Form.Item name={['user', 'number']} label="lot serial" rules={[{ required: true }]}>
+                    <Input onChange={numberHandler} />
                 </Form.Item>
                 <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 12 }}>
                     <Button type="primary" htmlType="submit" onClick={submit}>

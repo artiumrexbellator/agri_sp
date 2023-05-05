@@ -1,9 +1,11 @@
 import HomeButton from "../HomeButton";
 import React, { useState, useEffect } from 'react';
-import { Button, Space, Table, message, Modal } from 'antd';
+import { Button, Space, Table, message, Modal, Popconfirm } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import type { FilterValue, SorterResult } from 'antd/es/table/interface';
 import axios from "axios";
+import { v4 as uuidv4 } from 'uuid';
+
 import { server } from "../../axios/axios";
 
 interface Commodity {
@@ -31,6 +33,8 @@ interface TableParams {
 
 const ManageFractions: React.FC = () => {
 
+    const [confirmStates, setConfirmStates] = useState<{ [key: string]: boolean }>({});
+    const [confirmLoading, setConfirmLoading] = useState({});
     const [data, setData] = useState<Fraction[]>();
     const [loading, setLoading] = useState(false);
     const [tableParams, setTableParams] = useState<TableParams>({
@@ -99,7 +103,72 @@ const ManageFractions: React.FC = () => {
                 );
 
             },
+        }, {
+            title: 'Action',
+            render: (text, record) => {
+
+                const showPopconfirm = (id: string) => {
+                    setConfirmStates(prevStates => {
+                        return {
+                            ...prevStates,
+                            [id]: true
+                        }
+                    });
+                };
+
+                const handleOk = (id: string) => {
+                    setConfirmLoading(true);
+                    try {
+                        axios.post(`${server}/api/create/agreement`, { assetId: id, agreementId: uuidv4() }, { withCredentials: true }).then(response => {
+                            if (response.status == 200) {
+                                message.success({ content: 'agreement is added successfully' })
+                            } else {
+                                message.error({ content: 'internal error' })
+                            }
+                        });
+                    } catch (err) {
+                        message.error({ content: 'internal error' })
+                    }
+                    setTimeout(() => {
+                        setConfirmStates(prevStates => {
+                            return {
+                                ...prevStates,
+                                [id]: false
+                            }
+                        });
+                        setConfirmLoading(false);
+                    }, 2000);
+                };
+
+                const handleCancel = (id: string) => {
+                    console.log('Clicked cancel button');
+                    setConfirmStates(prevStates => {
+                        return {
+                            ...prevStates,
+                            [id]: false
+                        }
+                    });
+                };
+                return (
+                    <Space size="middle">
+                        <Popconfirm
+                            title="Title"
+                            description={`Do you want to create an agreement for the fraction ${record.id}?`}
+                            open={confirmStates[record.id] || false}
+                            onConfirm={() => handleOk(record.id)}
+                            okButtonProps={{ loading: confirmLoading }}
+                            onCancel={() => handleCancel(record.id)}
+                        >
+                            <Space>
+                                <Button type="primary" onClick={() => showPopconfirm(record.id)}>Issue an agreement</Button>
+                            </Space>
+                        </Popconfirm>
+                    </Space>
+                );
+
+            },
         }
+
 
     ];
 

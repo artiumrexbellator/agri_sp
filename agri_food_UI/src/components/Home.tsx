@@ -67,9 +67,9 @@ const Home: React.FC = () => {
             link: 'manageCommodityFraction',
         }, {
             key: 7,
-            title: 'Manage the lot unit',
+            title: 'Create the lot unit',
             description: 'this window will allow you to create a lotUnit for each commodity fraction that is currently processed by the factory in production chain',
-            link: 'manageLotUnit',
+            link: 'createLotUnit',
         }, {
             key: 8,
             title: 'Scan packages',
@@ -107,7 +107,7 @@ const Home: React.FC = () => {
                         } />
                         <Route path="/manageCommodityFraction" element={token ? <ManageFractions /> : <Navigate to="/login" />
                         } />
-                        <Route path="/manageLotUnit" element={token ? <LotUnit /> : <Navigate to="/login" />
+                        <Route path="/createLotUnit" element={token ? <LotUnit /> : <Navigate to="/login" />
                         } />
                         <Route path="/scanPackage" element={token ? <ScanPackage /> : <Navigate to="/login" />
                         } />
