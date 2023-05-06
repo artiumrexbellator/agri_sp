@@ -461,7 +461,8 @@ app.get("/api/get/package", async (req, res) => {
     const resultJSON = JSON.parse(submitResult.toString("utf8"));
     res.status(200).json(resultJSON);
   } catch (error) {
-    res.status(500).send("error invoking chaincode");
+    console.log(error);
+    res.status(500).send(error);
   } finally {
     // Disconnect from the gateway peer when all work for this client identity is complete
     gateway.disconnect();

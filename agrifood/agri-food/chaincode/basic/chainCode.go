@@ -577,7 +577,6 @@ func (s *SmartContract) UpdatePackage(ctx contractapi.TransactionContextInterfac
 	if err != nil {
 		return false, fmt.Errorf("failed to get MSP ID: %v", err)
 	}
-
 	//check if the package exists
 	exists, err := s.AssetExists(ctx, id)
 	if err != nil {
@@ -598,7 +597,13 @@ func (s *SmartContract) UpdatePackage(ctx contractapi.TransactionContextInterfac
 		return false, fmt.Errorf("failed to unmarshal package JSON: %v", err)
 	}
 
-	//create the supply
+	// check if the member didn't scan the package already
+	for _, holder := range pkg.Holders {
+		if holder.Owner == owner {
+			return false, fmt.Errorf("the package is already scanned by this member")
+
+		}
+	}
 	var today = time.Now().UTC().Format("2006-01-02")
 
 	pkgHolder := &PackageHolder{

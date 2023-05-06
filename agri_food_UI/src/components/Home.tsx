@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Layout, Menu, Typography } from 'antd';
 import MenuContainer from './MenuContainer';
 import ManageCommodity from './farmer/ManageCommodity';
@@ -6,7 +6,7 @@ import Connect from './connect';
 const { Header, Content, Footer } = Layout;
 const { Title } = Typography;
 import { Route, Routes } from 'react-router-dom';
-import { BrowserRouter as Router, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, useLocation } from 'react-router-dom';
 import CreateCommodity from './farmer/CreateCommodity';
 import axios from 'axios';
 import { server } from '../axios/axios';
@@ -16,7 +16,11 @@ import CommodityFraction from './broker/CommodityFraction';
 import ManageFractions from './broker/ManageFractions';
 import LotUnit from './factory/LotUnit';
 import ScanPackage from './factory/ScanPackage';
-import Package from './retailer/Package';
+import Package, { Pack } from './retailer/Package';
+
+const TimeLine = lazy(() => import('./retailer/TimeLine'));
+
+
 const titleStyle: React.CSSProperties = {
     color: 'white',
     marginTop: '10px'
@@ -135,6 +139,8 @@ const Home: React.FC = () => {
                         <Route path="/scanPackage" element={token ? <ScanPackage /> : <Navigate to="/login" />
                         } />
                         <Route path="/getPackage" element={token ? <Package /> : <Navigate to="/login" />
+                        } />
+                        <Route path="/timeLine" element={token ? <Suspense fallback={<div>Loading...</div>}><TimeLine /></Suspense> : <Navigate to="/login" />
                         } />
                     </Routes>
                 </Router>

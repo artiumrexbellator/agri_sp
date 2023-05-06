@@ -4,7 +4,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import { useReducer } from 'react';
 import { server } from '../axios/axios'
 import axios from 'axios';
-import { redirect } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 interface Login {
     mspId: string,
     identity: string,
@@ -75,6 +75,7 @@ const Connect: React.FC = () => {
     );
     const [state, dispatch] = useReducer(reducer, initialState);
     const [authModal, setAuthModal] = useState(false)
+    const navigate = useNavigate();
     const handleUploadCert: UploadProps = {
         name: 'cert',
         action: `${server}/upload/cert`,
@@ -131,7 +132,7 @@ const Connect: React.FC = () => {
                 if (response.status == 200) {
                     setAuthModal(false)
                     message.success({ content: 'the identity is signed successfully' })
-                    redirect('/')
+                    navigate('/')
                 } else if (response.status == 400) {
                     message.error({ content: 'error signing certificat and key' })
                 }
