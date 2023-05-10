@@ -434,7 +434,7 @@ Channel: &ChannelDefaults
 ################################################################################
 Profiles:
 
-    TwoOrgsApplicationGenesis:
+    AgrifoodNetworkProfile:
         <<: *ChannelDefaults
         Orderer:
             <<: *OrdererDefaults

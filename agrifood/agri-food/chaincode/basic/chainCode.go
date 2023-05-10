@@ -430,6 +430,13 @@ func (s *SmartContract) CreateCommodityFraction(ctx contractapi.TransactionConte
 		return false, fmt.Errorf("only members of BrokerMSP can create commodity fractions")
 	}
 
+	exists, err := s.AssetExists(ctx, id)
+	if err != nil {
+		return false, fmt.Errorf("failed to read from world state: %v", err)
+	}
+	if exists {
+		return false, fmt.Errorf("the commodity fraction %s already exists", id)
+	}
 	//create the commodity fraction
 	var today = time.Now().UTC().Format("2006-01-02")
 
@@ -480,7 +487,13 @@ func (s *SmartContract) CreateLotUnit(ctx contractapi.TransactionContextInterfac
 	if creatorOrg != "FactoryMSP" {
 		return false, fmt.Errorf("only members of FactoryMSP can create lot units")
 	}
-
+	exists, err := s.AssetExists(ctx, id)
+	if err != nil {
+		return false, fmt.Errorf("failed to read from world state: %v", err)
+	}
+	if exists {
+		return false, fmt.Errorf("the lot unit %s already exists", id)
+	}
 	//create the commodity fraction
 	var today = time.Now().UTC().Format("2006-01-02")
 
@@ -539,7 +552,7 @@ func (s *SmartContract) CreatePackage(ctx contractapi.TransactionContextInterfac
 		return false, fmt.Errorf("failed to read from world state: %v", err)
 	}
 	if exists {
-		return false, fmt.Errorf("the commodity %s already exists", id)
+		return false, fmt.Errorf("the package %s already exists", id)
 	}
 
 	//create the package
