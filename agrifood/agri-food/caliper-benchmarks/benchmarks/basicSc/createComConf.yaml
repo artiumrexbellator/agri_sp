@@ -3,8 +3,6 @@ test:
     number: 1
   rounds:
     - label: Create a commodity with 50 tx.
-      # 5000 transactions should create around 1000 cars per worker but not guaranteed
-      # so need to set asset limits to less than 1000 for the other tests
       txNumber: 50
       rateControl:
         type: fixed-rate
@@ -14,8 +12,6 @@ test:
         module: benchmarks/basicSc/createCommodity.js
 
     - label: Create a commodity with 100 tx.
-      # 5000 transactions should create around 1000 cars per worker but not guaranteed
-      # so need to set asset limits to less than 1000 for the other tests
       txNumber: 100
       rateControl:
         type: fixed-rate
@@ -25,8 +21,6 @@ test:
         module: benchmarks/basicSc/createCommodity.js
 
     - label: Create a commodity with 150 tx.
-      # 5000 transactions should create around 1000 cars per worker but not guaranteed
-      # so need to set asset limits to less than 1000 for the other tests
       txNumber: 150
       rateControl:
         type: fixed-rate
@@ -36,8 +30,6 @@ test:
         module: benchmarks/basicSc/createCommodity.js
 
     - label: Create a commodity with 200 tx.
-      # 5000 transactions should create around 1000 cars per worker but not guaranteed
-      # so need to set asset limits to less than 1000 for the other tests
       txNumber: 200
       rateControl:
         type: fixed-rate

@@ -1,0 +1,27 @@
+name: Caliper Benchmarks
+version: "2.0.0"
+
+caliper:
+  blockchain: fabric
+
+channels:
+  # channelName of mychannel matches the name of the channel created by test network
+  - channelName: supplychain
+    # the chaincodeIDs of all the fabric chaincodes in caliper-benchmarks
+    contracts:
+    - id: basic
+    - id: benchmark
+
+organizations:
+  - mspid: RetailerMSP
+    # Identities come from cryptogen created material for test-network
+    identities:
+      certificates:
+      - name: 'retailer'
+        clientPrivateKey:
+          path: './organizations/peerOrganizations/retailer.com/users/User1@retailer.com/msp/keystore/priv_sk'
+        clientSignedCert:
+          path: './organizations/peerOrganizations/retailer.com/users/User1@retailer.com/msp/signcerts/User1@retailer.com-cert.pem'
+    connectionProfile:
+      path: './organizations/peerOrganizations/retailer.com/connection-retailer.yaml'
+      discover: true

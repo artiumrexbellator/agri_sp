@@ -90,7 +90,7 @@ class CreateCommodityWorkload extends WorkloadModuleBase {
       let args = {
         contractId: "benchmark",
         contractFunction: "CreateCommodity",
-        invokerIdentity: "User1",
+        invokerIdentity: "farmer",
         contractArguments: [generateRandomId(), origin, type],
       };
       requestBatch.push(args);

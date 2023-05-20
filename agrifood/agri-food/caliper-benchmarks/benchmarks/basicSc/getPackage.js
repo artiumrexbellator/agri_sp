@@ -54,8 +54,9 @@ class CreateCommodityWorkload extends WorkloadModuleBase {
 
     let args = {
       contractId: "basic",
-      contractFunction: "GetFarmerCommodities",
-      invokerIdentity: "farmer",
+      contractFunction: "Getpackage",
+      invokerIdentity: "retailer",
+      contractArguments: [this.roundArguments.packageId],
     };
 
     await this.sutAdapter.sendRequests(args);

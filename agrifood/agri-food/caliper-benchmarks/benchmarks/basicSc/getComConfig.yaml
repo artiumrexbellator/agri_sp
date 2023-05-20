@@ -1,0 +1,20 @@
+test:
+  workers:
+    number: 1
+  rounds:
+    - label: get all commodity of invoking user.
+      txNumber: 200
+      rateControl:
+        type: fixed-rate
+        opts:
+          tps: 25
+      workload:
+        module: benchmarks/basicSc/getCommodities.js
+      config:
+        timeout: 5
+monitors:
+  resource:
+  - module: docker
+    options:
+      interval: 1
+      containers: ['all']

@@ -132,7 +132,7 @@ const Connect: React.FC = () => {
                 if (response.status == 200) {
                     setAuthModal(false)
                     message.success({ content: 'the identity is signed successfully' })
-                    navigate('/')
+                    navigate('/', {})
                 } else if (response.status == 400) {
                     message.error({ content: 'error signing certificat and key' })
                 }
