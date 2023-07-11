@@ -47,7 +47,7 @@ const Home: React.FC = () => {
         fetchToken()
     }, [])
     const roles: Roles = {
-        FarmerMSP: [1, 2, 3],
+        FarmerMSP: [1, 2, 3, 5, 6],
         SupplierMSP: [4],
         BrokerMSP: [3, 5, 6],
         FactoryMSP: [7, 8],
