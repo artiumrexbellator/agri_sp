@@ -13,4 +13,3 @@ agri_food_UI/server/wallets/
 agrifood/*
 !agrifood/agri-food
 notes
-.gitignore

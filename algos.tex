@@ -1,0 +1,289 @@
+\documentclass[11pt]{article}
+\usepackage[margin=3cm]{geometry}
+\usepackage{algorithm2e}
+\begin{document}
+
+
+\RestyleAlgo{ruled}
+
+%% This is needed if you want to add comments in
+%% your algorithm with \Comment
+\SetKwComment{Comment}{/* }{ */}
+
+%% ----------------------------------------------------------------------
+
+\begin{algorithm}[hbt!]
+\caption{algorithm to create commodity}\label{alg:one}
+\KwData{$id,origin,type:string$}
+$invokerOrg \gets GetMSPID()$\Comment*[r]{Get invoking user's organization}
+\eIf{$invokerOrg$ is not $FarmerMSP$}
+{
+    $return$ \text{'only members of FarmerMSP can create commodities'};
+}
+{\If{$AssetExists(id)$ is true}{
+    $return$ \text{'the commodity already exist'};
+ }
+}
+
+$owner \gets GetID()$\Comment*[r]{Get invoking user's identifier}
+Create Commodity object commodity\;
+$commodity.Id \gets id$\;
+$commodity.Owner \gets owner$\;
+$commodity.Origin \gets  origin$\;
+$commodity.Type \gets  type$\;
+$commodity.createdDate \gets  GetDate()$\;
+$commodity.supplies \gets  Supply[]$\;
+$PutState(id,commodity)$ \Comment*[r]{store data in world state as key-value pair}
+\eIf{commodity is stored}{
+    $return$ \text{'the commodity is successfully stored'};
+}{    $return$ \text{'error saving the commodity'};
+}
+AppendToWallet(owner,id,"commodity")\Comment*[r]{add the commodity to user's wallet}
+
+\end{algorithm}
+
+%% ----------------------------------------------------------------------
+
+\begin{algorithm}[hbt!]
+\caption{algorithm to append the assets to a user's wallet}\label{alg:two}
+\KwData {$owner,assetId,assetType:string$}
+\Comment*[r]{check if wallet exist}
+\If{$AssetExists(id)$ is false}{
+    Create Asset object asset\Comment*[r]{it contains asset reference}
+    $asset.Id \gets assetId$\;
+    $asset.Type \gets assetType$\;
+    Create Wallet object wallet \Comment*[r]{it contains refrences to all assets that are created by this member}
+    $wallet.Id \gets owner$\;
+    $wallet.Assets \gets Asset[asset]$\;
+    $PutState(owner,wallet)$\;
+    $return$ \text{'wallet created and asset appended successfully'};
+ }
+ \Comment*[r]{at this point the wallet exist}
+ $wallet \gets GetState(owner)$\;
+ \If{$doesNotContain(wallet.Assets,assetId)$ is not true}{
+    $return$ \text{'the wallet already contains the asset'};
+ }
+ Create Asset object asset\Comment*[r]{it contains asset reference}
+    $asset.Id \gets assetId$\;
+    $asset.Type \gets assetType$\;
+$wallet.Assets \gets append(wallet.Assets,asset)$\;
+$PutState(owner, wallet)$\;
+
+\end{algorithm}
+
+%% ----------------------------------------------------------------------
+
+\begin{algorithm}[hbt!]
+\caption{algorithm to get all the commodities of a farmer}\label{alg:three}
+$owner \gets GetID()$\Comment*[r]{Get invoking user's identifier}
+$wallet \gets GetState(owner)$\Comment*[r]{Get invoking user's wallet}
+$arrLength \gets $\text{length of wallet.Assets}\;
+$commodities \gets $\text{empty array of Commodity}\;
+$i = 0$\;
+\While{$i<arrLength$}{
+    \If{$wallet.Assets[i].Type$ == $commodity$}{
+        $commodity \gets GetState(wallet.Assets[i].Id)$\;
+        $commodities \gets append(commodities,commodity)$\;
+    }
+    $i \gets i+1$\;
+}
+        $return$ commodities;
+\end{algorithm}
+
+%% ----------------------------------------------------------------------
+
+\begin{algorithm}[hbt!]
+\caption{algorithm to create an agreement}\label{alg:three}
+\KwData {$assetId,agreementId:string$}
+$owner \gets GetID()$\Comment*[r]{Get invoking user's identifier}
+$wallet \gets GetState(owner)$\Comment*[r]{Get invoking user's wallet}
+\Comment*[r]{check if that member already has the asset}
+ \If{$doesNotContain(wallet.Assets,assetId)$ is true}{
+    $return$ \text{'you don't own that asset'};
+ }
+Create Agreement object agreement\;
+$agreement.Id \gets agreementId$\;
+$agreement.Owner \gets owner$\;
+$agreement.AssetId \gets assetId$\;
+$agreement.CreatedDate \gets GetDate()$\;
+$agreement.UsedBy \gets "" $\;
+$agreement.Organization \gets "" $\;
+$agreement.Consumed \gets false $\;
+$PutState(agreementId, agreement)$\;
+$AppendToWallet(owner,agreementId,"agreement")$\;
+\end{algorithm}
+
+%% ----------------------------------------------------------------------
+
+\begin{algorithm}[hbt!]
+\caption{algorithm to update the agreement}\label{alg:two}
+\KwData {$agreementId,assetId,owner,invokerOrg:string$}
+$agreement \gets GetState(agreementId)$ \Comment*[r]{get the agreement and verify the it was issued for the same asset}
+\eIf{$agreement.AssetId$ is not $assetId$}
+{
+    $return$ \text{'the provided asset is not compatible with the agreement one'};
+}{if{$agreement.Consumed$ is true}{
+    $return$ \text{'the provided agreement is already consumed'};
+}}
+
+$agreement.UsedBy \gets owner$\;
+$agreement.Consumed \gets true$\;
+$agreement.Organization \gets invokerOrg$\;
+
+$PutState(agreement.Id, agreement)$\Comment*[r]{update the agreement in world state}
+\end{algorithm}
+
+%% ----------------------------------------------------------------------
+
+\begin{algorithm}[hbt!]
+\caption{algorithm to append supplies to the commodity}\label{alg:two}
+\KwData {$agreementId,commodityId,supplyId,supplyType,quantity:string$}
+$owner \gets GetID()$\Comment*[r]{Get invoking user's identifier}
+$invokerOrg \gets GetMSPID()$\Comment*[r]{Get invoking user's organization}
+\If{$invokerOrg$ is not $SupplierMSP$}
+{
+    $return$ \text{'only members of SupplierMSP can push supplies to commodities'};
+}
+$commodity \gets GetState(commodityId)$ \Comment*[r]{get the commodity}
+Create Supply object supply\;
+$supply.Id \gets supplyId$\;
+$supply.Owner \gets owner$\;
+$supply.Type \gets supplyType$\;
+$supply.Quantity \gets quantity$\;
+$supply.Agreement \gets agreementId$\;
+$supply.CreatedDate \gets GetDate()$\;
+$commodity.Supplies \gets append(commodity.Supplies,supply)$ \Comment*[r]{push the supply to the commodity}
+$UpdateAgreement(agreementId,commodityId,owner,invokerOrg)$ \Comment*[r]{update the agreement as consumed}
+$PutState(commodityId, commodity)$ \Comment*[r]{update the commodity}
+\end{algorithm}
+
+%% ----------------------------------------------------------------------
+
+\begin{algorithm}[hbt!]
+\caption{algorithm to create commodity fraction}\label{alg:one}
+\KwData{$id,commodityId,agreementId,quantity:string$}
+$invokerOrg \gets GetMSPID()$\Comment*[r]{Get invoking user's organization}
+\eIf{$invokerOrg$ is not $BrokerMSP$}
+{
+    $return$ \text{'only members of BrokerMSP can create commodity fractions'};
+}
+{\If{$AssetExists(id)$ is true}{
+    $return$ \text{'the commodity fraction already exist'};
+ }
+}
+
+$owner \gets GetID()$\Comment*[r]{Get invoking user's identifier}
+Create CommodityFraction object commodityFraction\;
+$commodityFraction.Id \gets id$\;
+$commodityFraction.Owner \gets owner$\;
+$commodityFraction.CommodityId \gets  commodityId$\;
+$commodityFraction.AgreementId \gets  agreementId$\;
+$commodity.CreatedDate \gets  GetDate()$\;
+$commodity.Quantity \gets quantity$\;
+$PutState(id,commodityFraction)$ \Comment*[r]{store data in world state as key-value pair}
+\eIf{commodityFraction is stored}{
+    $return$ \text{'the commodity fraction is successfully stored'};
+}{    $return$ \text{'error saving the commodity fraction'};
+}
+AppendToWallet(owner,id,"commodityFraction")\Comment*[r]{add the commodity fraction to user's wallet}
+
+\end{algorithm}
+
+%% ----------------------------------------------------------------------
+
+\begin{algorithm}[hbt!]
+\caption{algorithm to create lot unit}\label{alg:one}
+\KwData{$id,commodityFractionId,agreementId,quantity,lotNumber:string$}
+$invokerOrg \gets GetMSPID()$\Comment*[r]{Get invoking user's organization}
+\eIf{$invokerOrg$ is not $FactoryMSP$}
+{
+    $return$ \text{'only members of FactoryMSP can create lot units'};
+}
+{\If{$AssetExists(id)$ is true}{
+    $return$ \text{'the lot already exist'};
+ }
+}
+
+$owner \gets GetID()$\Comment*[r]{Get invoking user's identifier}
+Create LotUnit object lotUnit\;
+$lotUnit.Id \gets id$\;
+$lotUnit.Owner \gets owner$\;
+$lotUnit.CommodityFractionId \gets  commodityFractionId$\;
+$lotUnit.AgreementId \gets  agreementId$\;
+$lotUnit.CreatedDate \gets  GetDate()$\;
+$lotUnit.Quantity \gets quantity$\;
+$lotUnit.LotNumber \gets lotNumber$\;
+$PutState(id,lotUnit)$ \Comment*[r]{store data in world state as key-value pair}
+\eIf{lotUnit is stored}{
+    $return$ \text{'the lot unit is successfully stored'};
+}{    $return$ \text{'error saving the lot unit'};
+}
+AppendToWallet(owner,id,"lotUnit")\Comment*[r]{add the lot unit to user's wallet}
+
+\end{algorithm}
+
+%% ----------------------------------------------------------------------
+
+\begin{algorithm}[hbt!]
+\caption{algorithm to create package}\label{alg:one}
+\KwData{$id,lotUnitId:string$}
+$invokerOrg \gets GetMSPID()$\Comment*[r]{Get invoking user's organization}
+\eIf{$invokerOrg$ is not $FactoryMSP$}
+{
+    $return$ \text{'only members of FactoryMSP can create lot units'};
+}
+{\If{$AssetExists(id)$ is true}{
+    $return$ \text{'the package already exist'};
+ }
+}
+
+$owner \gets GetID()$\Comment*[r]{Get invoking user's identifier}
+
+Create Package object package\;
+$package.Id \gets id$\;
+$package.Owner \gets owner$\;
+$package.LotUnitId \gets  lotUnitId$\;
+$package.CreatedDate \gets  GetDate()$\;
+$package.Holders \gets PackageHolders[]$\;
+$PutState(id,package)$ \Comment*[r]{store data in world state as key-value pair}
+\eIf{package is stored}{
+    $return$ \text{'the package is successfully stored'};
+}{    $return$ \text{'error saving the package'};
+}
+
+\end{algorithm}
+
+
+%% ----------------------------------------------------------------------
+
+\begin{algorithm}[hbt!]
+\caption{algorithm to update package}\label{alg:one}
+\KwData{$id:string$}
+$invokerOrg \gets GetMSPID()$\Comment*[r]{Get invoking user's organization}
+
+{\If{$AssetExists(id)$ is false}{
+    $return$ \text{'the package doesn't exist'};
+ }
+}
+
+$owner \gets GetID()$\Comment*[r]{Get invoking user's identifier}
+$package \gets GetState(id)$ \Comment*[r]{get the package}
+
+$arrLength \gets $\text{length of package.Holders}\;
+
+\While{$i<arrLength$}{
+    \If{$package.Holders[i].member$ == $owner$}{
+        $return$ \text{'error the package is already scanned by this member'};
+    }
+    $i \gets i+1$\;
+}
+
+Create PackageHolder object packageHolder\;
+$packageHolder.member \gets owner$\;
+$packageHolder.CreatedDate \gets  GetDate()$\;
+$package.holders \gets append(package.holders,packageHolder)$\;
+$PutState(id,package)$ \Comment*[r]{store data in world state as key-value pair}
+\end{algorithm}
+
+%% ----------------------------------------------------------------------
+\end{document}
