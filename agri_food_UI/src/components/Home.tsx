@@ -6,7 +6,7 @@ import Connect from './connect';
 const { Header, Content, Footer } = Layout;
 const { Title } = Typography;
 import { Route, Routes } from 'react-router-dom';
-import { BrowserRouter as Router, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate } from 'react-router-dom';
 import CreateCommodity from './farmer/CreateCommodity';
 import axios from 'axios';
 import { server } from '../axios/axios';
@@ -16,7 +16,7 @@ import CommodityFraction from './broker/CommodityFraction';
 import ManageFractions from './broker/ManageFractions';
 import LotUnit from './factory/LotUnit';
 import ScanPackage from './factory/ScanPackage';
-import Package, { Pack } from './retailer/Package';
+import Package from './retailer/Package';
 
 const TimeLine = lazy(() => import('./retailer/TimeLine'));
 

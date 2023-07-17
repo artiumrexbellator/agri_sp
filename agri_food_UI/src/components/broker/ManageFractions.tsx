@@ -2,7 +2,7 @@ import HomeButton from "../HomeButton";
 import React, { useState, useEffect } from 'react';
 import { Button, Space, Table, message, Modal, Popconfirm } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
-import type { FilterValue, SorterResult } from 'antd/es/table/interface';
+import type { FilterValue } from 'antd/es/table/interface';
 import axios from "axios";
 import { v4 as uuidv4 } from 'uuid';
 

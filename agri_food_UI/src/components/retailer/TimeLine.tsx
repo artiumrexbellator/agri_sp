@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import HomeButton from "../HomeButton";
 import { Pack } from "./Package";
 import { useLocation } from "react-router-dom";
-import { ClockCircleOutlined } from '@ant-design/icons';
 import { Timeline, QRCode, Space } from 'antd';
 
 

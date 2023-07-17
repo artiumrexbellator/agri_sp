@@ -4,7 +4,7 @@ import { Button, Form, Input, InputNumber, message } from 'antd';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { server } from "../../axios/axios"
-import { stringify } from 'querystring';
+
 const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },

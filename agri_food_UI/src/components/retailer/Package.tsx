@@ -3,7 +3,7 @@ import QrScanner from "qr-scanner";
 import HomeButton from "../HomeButton";
 import axios from "axios";
 import { server } from "../../axios/axios";
-import { message, Select } from "antd";
+import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 interface Commodity {
     origin: string;

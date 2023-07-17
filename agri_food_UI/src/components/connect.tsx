@@ -4,7 +4,7 @@ import { UploadOutlined } from '@ant-design/icons';
 import { useReducer } from 'react';
 import { server } from '../axios/axios'
 import axios from 'axios';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 interface Login {
     mspId: string,
     identity: string,
@@ -131,8 +131,9 @@ const Connect: React.FC = () => {
             await axios.post(`${server}/api/auth`, state, { withCredentials: true }).then(response => {
                 if (response.status == 200) {
                     setAuthModal(false)
-                    message.success({ content: 'the identity is signed successfully' })
-                    navigate('/', {})
+                    message.success({ content: 'the identity is signed successfully' }).then(() => {
+                        window.location.reload()
+                    })
                 } else if (response.status == 400) {
                     message.error({ content: 'error signing certificat and key' })
                 }
